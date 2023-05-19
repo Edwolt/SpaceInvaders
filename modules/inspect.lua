@@ -8,6 +8,7 @@ return function(value, name, show_meta)
         print(name .. '"' .. value .. '"')
     elseif type(value) == 'table' then
         show_meta = show_meta or false
+
         print(name .. '{')
 
         for ki, i in ipairs(value) do
@@ -29,6 +30,6 @@ return function(value, name, show_meta)
 
         print'}'
     else
-        print(name .. '???')
+        print(name .. tostring(value) .. ' ?')
     end
 end

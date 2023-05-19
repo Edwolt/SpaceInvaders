@@ -33,8 +33,6 @@ function love.keypressed(key)
         pause = not pause
     elseif key == 'l' then
         love.event.quit(0)
-    else
-        game:keypressed(key)
     end
 end
 

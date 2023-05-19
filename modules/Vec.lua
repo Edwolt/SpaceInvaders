@@ -23,6 +23,11 @@ function M:norm()
 end
 
 function M:versor()
+    -- if self == (0, 0), thre's no versor
+    if self:norm() == 0 then
+        return M(0, 0)
+    end
+
     -- return self / ||self||
     return self / self:norm()
 end

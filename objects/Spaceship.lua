@@ -25,7 +25,6 @@ end
 function M:update(opts)
     local dt = opts[1]
     local VELOCITY = opts.VELOCITY or 1
-    inspect(VELOCITY, 'velocity')
 
     self.pos = self.pos + (dt * VELOCITY * self.vel)
 end

@@ -26,23 +26,23 @@ function M:update(dt)
         return
     end
 
-    self.spaceship:update{dt, VELOCITY = self.SPACESHIP_VELOCITY}
-end
+    local keyIsDown = love.keyboard.isDown
 
-function M:keypressed(key)
-    local move = Vec(0, 0)
-    if key == 'right' or key == 'd' then
-        move = move + Vec(1, 0)
-    elseif key == 'left' or key == 'a' then
-        move = move + Vec( -1, 0)
-    elseif key == 'up' or key == 'w' then
-        move = move + Vec(0, -1)
-    elseif key == 'down' or key == 's' then
-        move = move + Vec(0, 1)
+    -- Update spaceship movement direction
+    local dir = Vec(0, 0)
+    if keyIsDown'right' or keyIsDown'd' then
+        dir = dir + Vec(1, 0)
+    elseif keyIsDown'left' or keyIsDown'a' then
+        dir = dir + Vec( -1, 0)
+    elseif keyIsDown'up' or keyIsDown'w' then
+        dir = dir + Vec(0, -1)
+    elseif keyIsDown'down' or keyIsDown's' then
+        dir = dir + Vec(0, 1)
     end
-    move = move:versor()
+    self.spaceship:move(dir:versor())
 
-    self.spaceship:move(move)
+    -- Updating spaceship
+    self.spaceship:update{dt, VELOCITY = self.SPACESHIP_VELOCITY}
 end
 
 return M
