@@ -1,12 +1,12 @@
 local Vec = require'modules.Vec'
 local inspect = require'modules.inspect'
 
-local M = {
-    load = function(M)
-        M.sprite = love.graphics.newImage'images/enemy.png'
-        M.tam = Vec(M.sprite:getWidth(), M.sprite:getHeight())
-    end,
-}
+local M = {}
+
+function M.load(M)
+    M.sprite = love.graphics.newImage'images/enemy.png'
+end
+
 M.__index = M
 
 local function new(_, pos)
@@ -18,20 +18,17 @@ end
 setmetatable(M, {__call = new})
 
 
-function M:draw(opts)
-    local scale = opts.scale or 1
-    local screen_pos = self.pos * opts.scale
+function M:draw(settings)
+    local SCALE = settings.SCALE or 1
+    local screen_pos = self.pos:toscreen(settings)
     love.graphics.draw(
         self.sprite,
         screen_pos.x, screen_pos.y, 0,
-        scale.x, scale.y
+        SCALE.x, SCALE.y
     )
 end
 
-function M:update(opts)
-    inspect{opts, 'opts'}
-    local direction = opts.direction
-
+function M:update(direction, settings)
     local dpos
     if direction == 'right' then
         dpos = Vec(1, 0)
@@ -44,13 +41,16 @@ function M:update(opts)
     else
         error('Invalid direction: ' .. direction)
     end
-    dpos = dpos * self.tam
+    dpos = dpos * self:size(settings)
+    inspect{dpos, 'dpos'}
+
 
     self.pos = self.pos + dpos
 end
 
-function M:move(vel)
-    self.vel = vel
+function M:size(settings)
+    local BLOCK_SIZE = settings.BLOCK_SIZE
+    return Vec.image_size(self.sprite) / BLOCK_SIZE
 end
 
 function M:getCollider()

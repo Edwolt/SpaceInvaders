@@ -1,7 +1,9 @@
 local inspect = require'modules.inspect'
-local M = {}
+local M = {
+}
 M.__index = M
 
+----- Constructors -----
 local function new(_, x, y)
     local self = {
         x = x or 0,
@@ -13,7 +15,21 @@ local function new(_, x, y)
 end
 setmetatable(M, {__call = new})
 
+function M.window_size()
+    return M(
+        love.graphics.getWidth(),
+        love.graphics.getHeight()
+    )
+end
 
+function M.image_size(sprite)
+    return M(
+        sprite:getWidth(),
+        sprite:getHeight()
+    )
+end
+
+----- Methods -----
 function M:copy()
     return M(self.x, self.y)
 end
@@ -123,6 +139,13 @@ end
 
 function M.__tostring(vec)
     return '(' .. vec.x .. ', ' .. vec.y .. ')'
+end
+
+----- Misc Methods -----
+function M:toscreen(settings)
+    local SCALE = settings.SCALE
+    local BLOCK_SIZE = settings.BLOCK_SIZE
+    return SCALE * BLOCK_SIZE * self
 end
 
 return M

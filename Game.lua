@@ -5,31 +5,44 @@ local Timer = require'modules.Timer'
 local Spaceship = require'objects.Spaceship'
 local Enemy = require'objects.Enemy'
 
+
 local M = {
-    SCALE = Vec(love.graphics.getWidth() / (50 * 16), love.graphics.getHeight() / (60 * 16)),
-    BLOCK_SIZE = Vec(16, 16),
-    SPACESHIP_VELOCITY = 50,
-    load = function(M)
-        Spaceship:load()
-        Enemy:load()
-    end,
+    settings = nil,
 }
+
+function M.load(M)
+    local SETTINGS = {
+        BLOCK_SIZE = Vec(16, 16),
+        BLOCK_NUMBER = Vec(18, 15),
+        SPACESHIP_VELOCITY = 5,
+    }
+    SETTINGS.SCALE = Vec.window_size() /
+        (SETTINGS.BLOCK_SIZE * SETTINGS.BLOCK_NUMBER)
+
+    M.settings = SETTINGS
+
+    Spaceship:load()
+    Enemy:load()
+end
+
 M.__index = M
 
+
 local function new(_)
-    local w, h = love.graphics.getWidth(), love.graphics.getHeight()
-    local dim = Vec(w, h)
+    local dim = Vec.window_size()
 
     local spaceship = Spaceship()
-    inspect{Spaceship, name = 'Spaceship'}
-    inspect{spaceship.tam / 2, name = 'spaceship'}
-    spaceship.pos = spaceship.pos - spaceship.tam / 2
+    spaceship.pos.x = M.settings.BLOCK_NUMBER.x / 2 -
+        spaceship:size(M.settings).x / 2
+    spaceship.pos.y = M.settings.BLOCK_NUMBER.y - 1
+    inspect{spaceship, 'spaceship'}
 
     local enemy = Enemy()
-    enemy.pos = Vec(100, 100)
+    enemy.pos.x = 1
+    enemy.pos.y = 1
 
     local self = {
-        spaceship = Spaceship(Vec(49, 59)),
+        spaceship = spaceship,
         enemy = enemy,
         timer = Timer(2),
     }
@@ -40,8 +53,8 @@ setmetatable(M, {__call = new})
 
 
 function M:draw()
-    self.spaceship:draw{scale = self.SCALE}
-    self.enemy:draw{scale = self.SCALE}
+    self.spaceship:draw(self.settings)
+    self.enemy:draw(self.settings)
 end
 
 function M:update(dt)
@@ -62,12 +75,13 @@ function M:update(dt)
     self.spaceship:move(dir:versor())
 
     -- Update Spaceship
-    self.spaceship:update{dt, VELOCITY = self.SPACESHIP_VELOCITY}
+    self.spaceship:update(dt, self.settings)
 
     -- Update Enemy
     for i = 0, self.timer:clock() - 1 do
         print(dt, self.timer.timer)
-        self.enemy:update{direction = 'right'}
+        inspect{self.settings, 'settings'}
+        self.enemy:update('right', self.settings)
     end
 end
 

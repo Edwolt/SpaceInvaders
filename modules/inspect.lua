@@ -1,4 +1,8 @@
-return function(opts)
+function f(opts, n)
+    if type(opts) ~= 'table' then
+        f{opts, n}
+    end
+
     local value = opts[1]
     local name = opts[2] and opts[2] .. ' = ' or ''
     local show_meta = opts.meta or false
@@ -28,3 +32,5 @@ return function(opts)
         print(name .. tostring(value))
     end
 end
+
+return f
