@@ -6,19 +6,25 @@ local game
 local pause = false
 
 function love.load()
-    game = Game()
+    love.graphics.setDefaultFilter('nearest', 'nearest', 0)
+
     love.window.setTitle'Space Invaders'
-    love.window.setMode(400, 600, {
+    love.window.setMode(500, 600, {
         msaa = 0,
         resizable = false,
-        borderless = true,
+        borderless = false,
     })
+
+    Game:load()
+    game = Game()
 end
 
 function love.draw()
-    local a = Vec(0, 1)
-    local b = Vec(2, 0)
     game:draw()
+
+    if pause then
+        -- Draw pause Menu
+    end
 end
 
 function love.update(dt)

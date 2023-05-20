@@ -22,6 +22,16 @@ function M:norm()
     return math.sqrt(self.x * self.x + self.y * self.y)
 end
 
+function M:dot(b)
+    local a = self
+    return a.x * b.x + a.y * b.y
+end
+
+function M:cross(b)
+    local a = self
+    return a.x * b.y - a.y * b.x
+end
+
 function M:versor()
     -- if self == (0, 0), thre's no versor
     if self:norm() == 0 then
@@ -32,62 +42,83 @@ function M:versor()
     return self / self:norm()
 end
 
-function M.__add(vec1, vec2)
-    assert(
-        type(vec1) == 'table' and type(vec2) == 'table',
-        'invalid types ' .. type(vec1) .. ' + ' .. type(vec2)
-    )
-
-    return M(
-        vec1.x + vec2.x,
-        vec1.y + vec2.y
-    )
-end
-
-function M.__sub(vec1, vec2)
-    assert(
-        type(vec1) == 'table' and type(vec2) == 'table',
-        'invalid types ' .. type(vec1) .. ' - ' .. type(vec2)
-    )
-
-    return M(
-        vec1.x - vec2.x,
-        vec1.y - vec2.y
-    )
-end
-
-function M.__mul(vec, num)
-    assert(
-        (type(vec) == 'table' and type(num) == 'number') or
-        (type(vec) == 'number' and type(num) == 'table'),
-        'invalid types ' .. type(vec) .. ' * ' .. type(num)
-    )
-
-    if type(vec) == 'number' then
-        vec, num = num, vec
+function M.__add(a, b)
+    if type(a) == 'table' and type(b) == 'table' then
+        return M(
+            a.x + b.x,
+            a.y + b.y
+        )
+    elseif (type(a) == 'table' and type(b) == 'number')
+        or (type(a) == 'number' and type(b) == 'table') then
+        --
+        if (type(a) == 'number') then
+            a, b = b, a
+        end
+        return M(
+            a.x + b,
+            a.y + b
+        )
+    else
+        error('invalid types ' .. type(a) .. ' + ' .. type(b))
     end
-
-    return M(
-        vec.x * num,
-        vec.y * num
-    )
 end
 
-function M.__div(vec, num)
-    assert(
-        (type(vec) == 'table' and type(num) == 'number') or
-        (type(vec) == 'number' and type(num) == 'table'),
-        'invalid types ' .. type(vec) .. ' / ' .. type(num)
-    )
-
-    if type(vec) == 'number' then
-        vec, num = num, vec
+function M.__sub(a, b)
+    if type(a) == 'table' and type(b) == 'table' then
+        return M(
+            a.x - b.x,
+            a.y - b.y
+        )
+    elseif (type(a) == 'table' and type(b) == 'number')
+        or (type(a) == 'number' and type(b) == 'table') then
+        --
+        if (type(a) == 'number') then
+            a, b = b, a
+        end
+        return M(
+            a.x - b,
+            a.y - b
+        )
+    else
+        error('invalid types ' .. type(a) .. ' - ' .. type(b))
     end
+end
 
-    return M(
-        vec.x / num,
-        vec.y / num
-    )
+function M.__mul(a, b)
+    if type(a) == 'table' and type(b) == 'table' then
+        return M(
+            a.x * b.x,
+            a.y * b.y
+        )
+    elseif (type(a) == 'table' and type(b) == 'number')
+        or (type(a) == 'number' and type(b) == 'table') then
+        --
+        if (type(a) == 'number') then
+            a, b = b, a
+        end
+        return M(
+            a.x * b,
+            a.y * b
+        )
+    else
+        error('invalid types ' .. type(a) .. ' * ' .. type(b))
+    end
+end
+
+function M.__div(a, b)
+    if type(a) == 'table' and type(b) == 'table' then
+        return M(
+            a.x / b.x,
+            a.y / b.y
+        )
+    elseif type(a) == 'table' and type(b) == 'number' then
+        return M(
+            a.x / b,
+            a.y / b
+        )
+    else
+        error('invalid types ' .. type(a) .. ' / ' .. type(b))
+    end
 end
 
 function M.__tostring(vec)

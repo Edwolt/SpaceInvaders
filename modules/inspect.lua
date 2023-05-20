@@ -1,14 +1,9 @@
-return function(value, name, show_meta)
-    name = name and name .. ' = ' or ''
-    if value == nil then
-        print(name .. 'nil')
-    elseif type(value) == 'number' then
-        print(name .. value)
-    elseif type(value) == 'string' then
-        print(name .. '"' .. value .. '"')
-    elseif type(value) == 'table' then
-        show_meta = show_meta or false
+return function(opts)
+    local value = opts[1]
+    local name = opts[2] and opts[2] .. ' = ' or ''
+    local show_meta = opts.meta or false
 
+    if type(value) == 'table' then
         print(name .. '{')
 
         for ki, i in ipairs(value) do
@@ -30,6 +25,6 @@ return function(value, name, show_meta)
 
         print'}'
     else
-        print(name .. tostring(value) .. ' ?')
+        print(name .. tostring(value))
     end
 end
