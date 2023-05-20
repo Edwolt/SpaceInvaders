@@ -1,15 +1,16 @@
+local inspect = require'utils.inspect'
 local Game = require'Game'
 local Vec = require'modules.Vec'
-local inspect = require'modules.inspect'
 
 local game
 local pause = false
+
 
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest', 0)
 
     love.window.setTitle'Space Invaders'
-    love.window.setMode(500, 600, {
+    love.window.setMode(256*2, 240*2, {
         msaa = 0,
         resizable = false,
         borderless = false,
@@ -39,7 +40,14 @@ function love.keypressed(key)
         pause = not pause
     elseif key == 'l' then
         love.event.quit(0)
+    elseif key == 'f' then
+        love.window.setFullscreen(not love.window.getFullscreen())
     end
+end
+
+
+function love.resize(w, h)
+    game:resize()
 end
 
 --[[

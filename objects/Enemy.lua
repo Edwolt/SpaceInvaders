@@ -1,5 +1,5 @@
+local inspect = require'utils.inspect'
 local Vec = require'modules.Vec'
-local inspect = require'modules.inspect'
 
 local M = {}
 

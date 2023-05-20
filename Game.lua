@@ -1,4 +1,4 @@
-local inspect = require'modules.inspect'
+local inspect = require'utils.inspect'
 local Vec = require'modules.Vec'
 local Timer = require'modules.Timer'
 
@@ -7,19 +7,19 @@ local Enemy = require'objects.Enemy'
 
 
 local M = {
-    settings = nil,
+    SETTINGS = nil,
 }
 
 function M.load(M)
     local SETTINGS = {
         BLOCK_SIZE = Vec(16, 16),
-        BLOCK_NUMBER = Vec(18, 15),
+        BLOCK_NUMBER = Vec(16, 15),
         SPACESHIP_VELOCITY = 5,
     }
     SETTINGS.SCALE = Vec.window_size() /
         (SETTINGS.BLOCK_SIZE * SETTINGS.BLOCK_NUMBER)
 
-    M.settings = SETTINGS
+    M.SETTINGS = SETTINGS
 
     Spaceship:load()
     Enemy:load()
@@ -32,9 +32,9 @@ local function new(_)
     local dim = Vec.window_size()
 
     local spaceship = Spaceship()
-    spaceship.pos.x = M.settings.BLOCK_NUMBER.x / 2 -
-        spaceship:size(M.settings).x / 2
-    spaceship.pos.y = M.settings.BLOCK_NUMBER.y - 1
+    spaceship.pos.x = M.SETTINGS.BLOCK_NUMBER.x / 2 -
+        spaceship:size(M.SETTINGS).x / 2
+    spaceship.pos.y = M.SETTINGS.BLOCK_NUMBER.y - 1
     inspect{spaceship, 'spaceship'}
 
     local enemy = Enemy()
@@ -53,8 +53,8 @@ setmetatable(M, {__call = new})
 
 
 function M:draw()
-    self.spaceship:draw(self.settings)
-    self.enemy:draw(self.settings)
+    self.spaceship:draw(self.SETTINGS)
+    self.enemy:draw(self.SETTINGS)
 end
 
 function M:update(dt)
@@ -75,14 +75,19 @@ function M:update(dt)
     self.spaceship:move(dir:versor())
 
     -- Update Spaceship
-    self.spaceship:update(dt, self.settings)
+    self.spaceship:update(dt, self.SETTINGS)
 
     -- Update Enemy
     for i = 0, self.timer:clock() - 1 do
         print(dt, self.timer.timer)
-        inspect{self.settings, 'settings'}
-        self.enemy:update('right', self.settings)
+        self.enemy:update('right', self.SETTINGS)
     end
+end
+
+function M:resize()
+    inspect{self.SETTINGS}
+    self.SETTINGS.SCALE = Vec.window_size() /
+        (self.SETTINGS.BLOCK_SIZE * self.SETTINGS.BLOCK_NUMBER)
 end
 
 return M

@@ -1,4 +1,4 @@
-function f(opts, n)
+local function f(opts, n)
     if type(opts) ~= 'table' then
         f{opts, n}
     end

@@ -1,4 +1,4 @@
-local inspect = require'modules.inspect'
+local inspect = require'utils.inspect'
 local M = {
 }
 M.__index = M
