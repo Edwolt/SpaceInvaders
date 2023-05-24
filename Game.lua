@@ -3,8 +3,7 @@ local Vec = require'modules.Vec'
 local Timer = require'modules.Timer'
 
 local Spaceship = require'objects.Spaceship'
-local Enemy = require'objects.Enemy'
-
+local Alien = require'objects.Alien'
 
 local M = {
     SETTINGS = nil,
@@ -22,7 +21,7 @@ function M.load(M)
     M.SETTINGS = SETTINGS
 
     Spaceship:load()
-    Enemy:load()
+    Alien:load()
 end
 
 M.__index = M
@@ -37,13 +36,13 @@ local function new(_)
     spaceship.pos.y = M.SETTINGS.BLOCK_NUMBER.y - 1
     inspect{spaceship, 'spaceship'}
 
-    local enemy = Enemy()
-    enemy.pos.x = 1
-    enemy.pos.y = 1
+    local alien = Alien()
+    alien.pos.x = 1
+    alien.pos.y = 1
 
     local self = {
         spaceship = spaceship,
-        enemy = enemy,
+        alien = alien,
         timer = Timer(2),
     }
 
@@ -54,7 +53,7 @@ setmetatable(M, {__call = new})
 
 function M:draw()
     self.spaceship:draw(self.SETTINGS)
-    self.enemy:draw(self.SETTINGS)
+    self.alien:draw(self.SETTINGS)
 end
 
 function M:update(dt)
@@ -77,10 +76,10 @@ function M:update(dt)
     -- Update Spaceship
     self.spaceship:update(dt, self.SETTINGS)
 
-    -- Update Enemy
+    -- Update Alien
     for i = 0, self.timer:clock() - 1 do
         print(dt, self.timer.timer)
-        self.enemy:update('right', self.SETTINGS)
+        self.alien:update('right', self.SETTINGS)
     end
 end
 
