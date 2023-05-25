@@ -3,10 +3,13 @@ local clamp = require'utils.clamp'
 
 local Vec = require'modules.Vec'
 
-local M = {}
+local M = {_loaded = false}
 
 function M.load(M)
-    M.sprite = love.graphics.newImage'images/spaceship.png'
+    if not M._loaded then
+        M.sprite = love.graphics.newImage'images/spaceship.png'
+        M._loaded = true
+    end
 end
 
 M.__index = M

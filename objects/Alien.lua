@@ -1,10 +1,13 @@
 local inspect = require'utils.inspect'
 local Vec = require'modules.Vec'
 
-local M = {}
+local M = {_loaded = false}
 
 function M.load(M)
-    M.sprite = love.graphics.newImage'images/enemy.png'
+    if not M._loaded then
+        M.sprite = love.graphics.newImage'images/enemy.png'
+        M._loaded = true
+    end
 end
 
 M.__index = M
@@ -35,11 +38,11 @@ function M:update(direction, settings)
     elseif direction == 'left' then
         dpos = Vec( -1, 0)
     elseif direction == 'up' then
-        dpos = Vec(0, 1)
-    elseif direction == 'down' then
         dpos = Vec(0, -1)
+    elseif direction == 'down' then
+        dpos = Vec(0, 1)
     else
-        error('Invalid direction: ' .. direction)
+        error('Invalid direction: ' .. tostring(direction))
     end
     dpos = dpos * self:size(settings)
     inspect{dpos, 'dpos'}

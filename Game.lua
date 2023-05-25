@@ -1,9 +1,8 @@
 local inspect = require'utils.inspect'
 local Vec = require'modules.Vec'
-local Timer = require'modules.Timer'
 
 local Spaceship = require'objects.Spaceship'
-local Alien = require'objects.Alien'
+local AlienSwarm = require'objects.AlienSwarm'
 
 local M = {
     SETTINGS = nil,
@@ -21,7 +20,7 @@ function M.load(M)
     M.SETTINGS = SETTINGS
 
     Spaceship:load()
-    Alien:load()
+    AlienSwarm:load()
 end
 
 M.__index = M
@@ -36,14 +35,9 @@ local function new(_)
     spaceship.pos.y = M.SETTINGS.BLOCK_NUMBER.y - 1
     inspect{spaceship, 'spaceship'}
 
-    local alien = Alien()
-    alien.pos.x = 1
-    alien.pos.y = 1
-
     local self = {
         spaceship = spaceship,
-        alien = alien,
-        timer = Timer(2),
+        swarm = AlienSwarm(3, 7, 5),
     }
 
     return setmetatable(self, M)
@@ -53,38 +47,31 @@ setmetatable(M, {__call = new})
 
 function M:draw()
     self.spaceship:draw(self.SETTINGS)
-    self.alien:draw(self.SETTINGS)
+    self.swarm:draw(self.SETTINGS)
 end
 
 function M:update(dt)
-    self.timer:update(dt)
     local keyIsDown = love.keyboard.isDown
 
     -- Update spaceship movement direction
     local dir = Vec(0, 0)
     if keyIsDown'right' or keyIsDown'd' then
-        dir = dir + Vec(1, 0)
-    elseif keyIsDown'left' or keyIsDown'a' then
-        dir = dir + Vec( -1, 0)
-        -- elseif keyIsDown'up' or keyIsDown'w' then
-        --     dir = dir + Vec(0, -1)
-        -- elseif keyIsDown'down' or keyIsDown's' then
-        --     dir = dir + Vec(0, 1)
+        dir.x = dir.x + 1
     end
+    if keyIsDown'left' or keyIsDown'a' then
+        dir.x = dir.x - 1
+    end
+
     self.spaceship:move(dir:versor())
 
     -- Update Spaceship
     self.spaceship:update(dt, self.SETTINGS)
 
-    -- Update Alien
-    for i = 0, self.timer:clock() - 1 do
-        print(dt, self.timer.timer)
-        self.alien:update('right', self.SETTINGS)
-    end
+    -- Update Aliens
+    self.swarm:update(dt, self.SETTINGS)
 end
 
 function M:resize()
-    inspect{self.SETTINGS}
     self.SETTINGS.SCALE = Vec.window_size() /
         (self.SETTINGS.BLOCK_SIZE * self.SETTINGS.BLOCK_NUMBER)
 end
