@@ -3,6 +3,7 @@ local Vec = require'modules.Vec'
 
 local Spaceship = require'objects.Spaceship'
 local AlienSwarm = require'objects.AlienSwarm'
+local Text = require'objects.Text'
 
 local M = {
     SETTINGS = nil,
@@ -21,6 +22,7 @@ function M.load(M)
 
     Spaceship:load()
     AlienSwarm:load()
+    Text:load()
 end
 
 M.__index = M
@@ -33,7 +35,6 @@ local function new(_)
     spaceship.pos.x = M.SETTINGS.BLOCK_NUMBER.x / 2 -
         spaceship:size(M.SETTINGS).x / 2
     spaceship.pos.y = M.SETTINGS.BLOCK_NUMBER.y - 1
-    inspect{spaceship, 'spaceship'}
 
     local self = {
         spaceship = spaceship,
@@ -46,6 +47,9 @@ setmetatable(M, {__call = new})
 
 
 function M:draw()
+    Text:drawText(Vec(0, 0), 'H', self.SETTINGS)
+    Text:drawText(Vec(0, 0.5), 'S', self.SETTINGS)
+
     self.spaceship:draw(self.SETTINGS)
     self.swarm:draw(self.SETTINGS)
 end

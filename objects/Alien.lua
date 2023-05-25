@@ -45,8 +45,6 @@ function M:update(direction, settings)
         error('Invalid direction: ' .. tostring(direction))
     end
     dpos = dpos * self:size(settings)
-    inspect{dpos, 'dpos'}
-
 
     self.pos = self.pos + dpos
 end

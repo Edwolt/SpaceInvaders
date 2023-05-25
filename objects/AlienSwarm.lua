@@ -53,15 +53,7 @@ end
 function M:update(dt, settings)
     self.timer:update(dt)
     self.timer:clock(function()
-        inspect(self, 'self')
         for _, a in ipairs(self.aliens) do
-            inspect(self.movements, 'movements')
-            inspect{
-                ['m'] = self.m,
-                ['move'] = #self.movements,
-                ['m%move'] = self.m % #self.movements,
-                ['d'] = self.movements[self.m % #self.movements + 1],
-            }
             a:update(self.movements[self.m % #self.movements + 1], settings)
         end
         self.m = self.m + 1
