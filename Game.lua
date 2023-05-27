@@ -1,5 +1,6 @@
 local Vec = require'modules.Vec'
 local time = require'modules.time'
+local Key = require'modules.key'
 
 local Spaceship = require'objects.Spaceship'
 local AlienSwarm = require'objects.AlienSwarm'
@@ -16,10 +17,12 @@ function M.load(M)
         SCREEN_BLOCKS = Vec(16, 15),
         SPACESHIP_VELOCITY = 5,
         BULLET_VELOCITY = 15,
+        KEYBOARD_COOLDOWN = 0.2,
     }
     SETTINGS.SCALE = Vec.window_size() /
         (SETTINGS.BLOCK_SIZE * SETTINGS.SCREEN_BLOCKS)
 
+    M.key = Key(SETTINGS)
     M.SETTINGS = SETTINGS
 
     Spaceship:load()
@@ -43,7 +46,6 @@ local function new(_)
         spaceship = spaceship,
         swarm = AlienSwarm{3, 7, 5, timer = 2} ,
         bullets_timers = {
-            cooldown = time.CoolDown(0.2),
             clean = time.Timer(1),
         },
         bullets = {},
@@ -65,20 +67,18 @@ function M:draw()
 end
 
 function M:update(dt)
-    local keyIsDown = love.keyboard.isDown
+    local key = self.key
 
     -- Update spaceship movement direction
     local dir = Vec(0, 0)
-    if keyIsDown'right' or keyIsDown'd' then
+    key:right(function()
         dir.x = dir.x + 1
-    end
-    if keyIsDown'left' or keyIsDown'a' then
+    end)
+    key:left(function()
         dir.x = dir.x - 1
-    end
-    self.bullets_timers.cooldown:clock(function()
-        if keyIsDown'space' then
-            self.bullets[#self.bullets + 1] = Bullet(self.spaceship.pos)
-        end
+    end)
+    key:shoot(function()
+        self.bullets[#self.bullets + 1] = Bullet(self.spaceship.pos)
     end)
     self.spaceship:move(dir:versor())
 

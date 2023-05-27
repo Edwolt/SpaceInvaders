@@ -10,7 +10,7 @@ function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest', 0)
 
     love.window.setTitle'Space Invaders'
-    love.window.setMode(256*2, 240*2, {
+    love.window.setMode(256 * 2, 240 * 2, {
         msaa = 0,
         resizable = false,
         borderless = false,
@@ -44,7 +44,6 @@ function love.keypressed(key)
         love.window.setFullscreen(not love.window.getFullscreen())
     end
 end
-
 
 function love.resize(w, h)
     game:resize()
