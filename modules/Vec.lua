@@ -1,4 +1,3 @@
-local inspect = require'utils.inspect'
 local M = {
 }
 M.__index = M
@@ -11,7 +10,9 @@ local function new(_, x, y)
     }
     assert(type(self.x) == 'number')
     assert(type(self.y) == 'number')
-    return setmetatable(self, M)
+
+    setmetatable(self, M)
+    return self
 end
 setmetatable(M, {__call = new})
 
@@ -30,7 +31,7 @@ function M.image_size(sprite)
 end
 
 ----- Methods -----
-function M:copy()
+function M:clone()
     return M(self.x, self.y)
 end
 
@@ -75,7 +76,7 @@ function M.__add(a, b)
             a.y + b
         )
     else
-        error('invalid types ' .. type(a) .. ' + ' .. type(b))
+        error(string.format('invalid types %s + %s', type(a), type(b)))
     end
 end
 
@@ -96,7 +97,7 @@ function M.__sub(a, b)
             a.y - b
         )
     else
-        error('invalid types ' .. type(a) .. ' - ' .. type(b))
+        error(string.format('invalid types %s - %s', type(a), type(b)))
     end
 end
 
@@ -117,7 +118,7 @@ function M.__mul(a, b)
             a.y * b
         )
     else
-        error('invalid types ' .. type(a) .. ' * ' .. type(b))
+        error(string.format('invalid types %s * %s', type(a), type(b)))
     end
 end
 
@@ -133,12 +134,12 @@ function M.__div(a, b)
             a.y / b
         )
     else
-        error('invalid types ' .. type(a) .. ' / ' .. type(b))
+        error(string.format('invalid types %s / %s', type(a), type(b)))
     end
 end
 
 function M.__tostring(vec)
-    return '(' .. vec.x .. ', ' .. vec.y .. ')'
+    return string.format('(%d, %d)', vec.x, vec.y)
 end
 
 ----- Misc Methods -----

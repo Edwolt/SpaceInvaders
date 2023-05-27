@@ -1,4 +1,3 @@
-local inspect = require'utils.inspect'
 local Vec = require'modules.Vec'
 local Alien = require'objects.Alien'
 local Timer = require'modules.Timer'
@@ -7,8 +6,8 @@ local M = {_loaded = false}
 
 function M.load(M)
     if not M._loaded then
-        Alien:load()
         M._loaded = true
+        Alien:load()
     end
 end
 
@@ -39,7 +38,8 @@ local function new(_, n, m, d)
         timer = Timer(0.2),
     }
 
-    return setmetatable(self, M)
+    setmetatable(self, M)
+    return self
 end
 setmetatable(M, {__call = new})
 

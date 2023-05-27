@@ -1,4 +1,3 @@
-local inspect = require'utils.inspect'
 local clamp = require'utils.clamp'
 
 local Vec = require'modules.Vec'
@@ -7,8 +6,8 @@ local M = {_loaded = false}
 
 function M.load(M)
     if not M._loaded then
-        M.sprite = love.graphics.newImage'images/spaceship.png'
         M._loaded = true
+        M.sprite = love.graphics.newImage'images/spaceship.png'
     end
 end
 
@@ -20,7 +19,9 @@ local function new(_, pos)
         pos = pos or Vec(),
         vel = Vec(0, 0),
     }
-    return setmetatable(self, M)
+
+    setmetatable(self, M)
+    return self
 end
 setmetatable(M, {__call = new})
 

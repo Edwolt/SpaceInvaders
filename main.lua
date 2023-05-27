@@ -1,4 +1,4 @@
-local inspect = require'utils.inspect'
+inspect = require'utils.inspect'
 local Game = require'Game'
 local Vec = require'modules.Vec'
 

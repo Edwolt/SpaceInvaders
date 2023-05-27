@@ -6,7 +6,9 @@ local function new(_, duration)
         time = 0,
         duration = duration or 1,
     }
-    return setmetatable(self, M)
+
+    setmetatable(self, M)
+    return self
 end
 setmetatable(M, {__call = new})
 

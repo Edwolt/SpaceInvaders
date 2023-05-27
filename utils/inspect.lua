@@ -1,8 +1,4 @@
-local function f(opts, n)
-    if n ~= nil or type(opts[1]) ~= 'table' then
-        f{opts, n}
-    end
-
+return function(opts)
     local value = opts[1]
     local name = opts[2] and opts[2] .. ' = ' or ''
     local show_meta = opts.meta or false
@@ -11,13 +7,13 @@ local function f(opts, n)
         print(name .. '{')
 
         for ki, i in pairs(value) do
-            print('    ' .. tostring(ki) .. ' = ' .. tostring(i))
+            print(string.format('  %s = %s', tostring(ki), tostring(i)))
         end
 
         if show_meta then
             local meta = getmetatable(value)
             for ki, i in pairs(meta) do
-                print('   $' .. tostring(ki) .. ' = ' .. tostring(i))
+                print(' $%s = %s', tostring(ki), tostring(i))
             end
         end
 
@@ -26,5 +22,3 @@ local function f(opts, n)
         print(name .. tostring(value))
     end
 end
-
-return f
