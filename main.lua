@@ -1,30 +1,45 @@
-inspect = require'utils.inspect'
+-- Globals
+dbg = require'utils.dbg'
+inspect = dbg.inspect
+require'SETTINGS'
+
 local Game = require'Game'
-local Vec = require'modules.Vec'
+local Key = SETTINGS.Key
 
 local game
 local pause = false
 
 
 function love.load()
+    dbg.inspect{SETTINGS, 'SETTINGS'}
+    dbg.print()
+
+    dbg.log.load'main'
+    print'Panetone > Chocotone'
     love.graphics.setDefaultFilter('nearest', 'nearest', 0)
 
     love.window.setTitle'Space Invaders'
-    love.window.setMode(256 * 2, 240 * 2, {
-        msaa = 0,
-        resizable = false,
-        borderless = false,
-    })
+    love.window.setMode(
+        256 * 2, 240 * 2,
+        {
+            msaa = 0,
+            resizable = true,
+            borderless = false,
+        }
+    )
 
     Game:load()
     game = Game()
+
+    dbg.log.loaded'main'
+    dbg.print()
 end
 
 function love.draw()
-    game:draw()
-
-    if pause then
-        -- Draw pause Menu
+    if not pause then
+        game:draw()
+    else
+        game:pauseDraw()
     end
 end
 
@@ -36,17 +51,19 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
-    if key == 'escape' then
+    Key:pause(function()
         pause = not pause
-    elseif key == 'l' then
+    end)
+    Key:quit(function()
         love.event.quit(0)
-    elseif key == 'f' then
+    end)
+    Key:fullscreen(function()
         love.window.setFullscreen(not love.window.getFullscreen())
-    end
+    end)
 end
 
 function love.resize(w, h)
-    game:resize()
+    -- SETTINGS.SCALE is now computed
 end
 
 --[[

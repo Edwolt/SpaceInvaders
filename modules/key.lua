@@ -4,10 +4,10 @@ local keyIsDown = love.keyboard.isDown
 M = {}
 M.__index = M
 
-local function new(_, settings)
-    local BULLET_COOLDOWN = settings.BULLET_COOLDOWN
+local function new(_)
+    local BULLET_COOLDOWN = SETTINGS.BULLET_COOLDOWN
     local self = {
-        shootCooldown = time.Timer(BULLET_COOLDOWN),
+        shootCooldown = time.CoolDown(BULLET_COOLDOWN),
         shootPressed = false,
     }
 
@@ -18,6 +18,24 @@ setmetatable(M, {__call = new})
 
 function M:update(dt)
     self.shootCooldown:update(dt)
+end
+
+function M:quit(f, ...)
+    if keyIsDown'l' then
+        f(...)
+    end
+end
+
+function M:pause(f, ...)
+    if keyIsDown'escape' then
+        f(...)
+    end
+end
+
+function M:fullscreen(f, ...)
+    if keyIsDown'f' or keyIsDown'f11' then
+        f(...)
+    end
 end
 
 function M:right(f, ...)
@@ -33,22 +51,16 @@ function M:left(f, ...)
 end
 
 function M:shoot(f, ...)
-    local args = ...
     local run = false
 
     if keyIsDown'space' or keyIsDown'w' then
         self.spacePressed = true
     end
 
-    inspect{self}
-    self.shootCooldown:clock(function()
-        if self.spacePressed then
-            f(unpack(args))
-            run = true
-        end
-    end)
-
-    if run then
+    if self.spacePressed then
+        self.shootCooldown:clock(function(...)
+            f(...)
+        end, ...)
         self.spacePressed = false
     end
 end

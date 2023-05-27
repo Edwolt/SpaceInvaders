@@ -2,22 +2,27 @@ local Vec = require'modules.Vec'
 local Alien = require'objects.Alien'
 local time = require'modules.time'
 
-local M = {_loaded = false}
-
-function M.load(M)
-    if not M._loaded then
+local M = {
+    _loaded = false,
+    load = function(M)
+        if M._loaded then
+            return
+        end
         M._loaded = true
-        Alien:load()
-    end
-end
+        dbg.log.load'AlienSwarm'
 
+        Alien:load()
+
+        dbg.log.loaded'AlienSwarm'
+    end,
+}
 M.__index = M
 
 local function new(_, opts)
     local n = opts[1]
     local m = opts[2]
     local d = opts[3]
-    local timing = opts.timing
+    local t = opts.timing
 
     local aliens = {}
     for i = 1, n do
@@ -40,7 +45,7 @@ local function new(_, opts)
         aliens = aliens,
         movements = movements,
         m = 0,
-        timer = time.Timer(timing),
+        timer = time.Timer(t),
     }
 
     setmetatable(self, M)
@@ -49,17 +54,17 @@ end
 setmetatable(M, {__call = new})
 
 
-function M:draw(settings)
+function M:draw()
     for _, a in ipairs(self.aliens) do
-        a:draw(settings)
+        a:draw()
     end
 end
 
-function M:update(dt, settings)
+function M:update(dt)
     self.timer:update(dt)
     self.timer:clock(function()
         for _, a in ipairs(self.aliens) do
-            a:update(self.movements[self.m % #self.movements + 1], settings)
+            a:update(self.movements[self.m % #self.movements + 1])
         end
         self.m = self.m + 1
     end)

@@ -4,10 +4,7 @@ M.__index = M
 
 ----- Constructors -----
 local function new(_, x, y)
-    local self = {
-        x = x or 0,
-        y = y or 0,
-    }
+    local self = {x = x, y = y}
     assert(type(self.x) == 'number')
     assert(type(self.y) == 'number')
 
@@ -139,18 +136,21 @@ function M.__div(a, b)
 end
 
 function M.__tostring(vec)
-    return string.format('(%d, %d)', vec.x, vec.y)
+    return string.format('(x=%d, y=%d)', vec.x, vec.y)
 end
 
 ----- Misc Methods -----
-function M:toscreen(settings)
-    local SCALE = settings.SCALE
-    local BLOCK_SIZE = settings.BLOCK_SIZE
+function M:toscreen(opts)
+    opts = opts or {}
+    local font = opts.font or false
+
+    local SCALE = font and SETTINGS.FONT_SCALE() or SETTINGS.SCALE()
+    local BLOCK_SIZE = SETTINGS.BLOCK_SIZE
     return SCALE * BLOCK_SIZE * self
 end
 
-function M:isOnScreen(settings)
-    local SCREEN_BLOCKS = settings.SCREEN_BLOCKS
+function M:isOnScreen()
+    local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
     local on_x = 0 < self.x and self.x < SCREEN_BLOCKS.x
     local on_y = 0 < self.y and self.y < SCREEN_BLOCKS.y
     return on_x and on_y

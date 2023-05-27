@@ -1,19 +1,24 @@
 local Vec = require'modules.Vec'
 
-local M = {_loaded = false}
-
-function M.load(M)
-    if not M._loaded then
+local M = {
+    _loaded = false,
+    load = function(M)
+        if M._loaded then
+            return
+        end
         M._loaded = true
-        M.sprite = love.graphics.newImage'images/enemy.png'
-    end
-end
+        dbg.log.load'Alien'
 
+        M.sprite = love.graphics.newImage'assets/enemy.png'
+
+        dbg.log.loaded'Alien'
+    end,
+}
 M.__index = M
 
 local function new(_, pos)
     local self = {
-        pos = pos or Vec(),
+        pos = pos,
     }
 
     setmetatable(self, M)
@@ -22,9 +27,9 @@ end
 setmetatable(M, {__call = new})
 
 
-function M:draw(settings)
-    local SCALE = settings.SCALE or 1
-    local screen_pos = self.pos:toscreen(settings)
+function M:draw()
+    local SCALE = SETTINGS.SCALE()
+    local screen_pos = self.pos:toscreen()
     love.graphics.draw(
         self.sprite,
         screen_pos.x, screen_pos.y, 0,
@@ -32,7 +37,7 @@ function M:draw(settings)
     )
 end
 
-function M:update(direction, settings)
+function M:update(direction)
     local dpos
     if direction == 'right' then
         dpos = Vec(1, 0)
@@ -45,13 +50,13 @@ function M:update(direction, settings)
     else
         error('Invalid direction: ' .. tostring(direction))
     end
-    dpos = dpos * self:size(settings)
+    dpos = dpos * self:size()
 
     self.pos = self.pos + dpos
 end
 
-function M:size(settings)
-    local BLOCK_SIZE = settings.BLOCK_SIZE
+function M:size()
+    local BLOCK_SIZE = SETTINGS.BLOCK_SIZE
     return Vec.image_size(self.sprite) / BLOCK_SIZE
 end
 

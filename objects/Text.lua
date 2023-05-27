@@ -2,13 +2,14 @@ local Vec = require'modules.Vec'
 
 local M = {
     _loaded = false,
-}
-
-function M.load(M)
-    if not M._loaded then
+    load = function(M)
+        if M._loaded then
+            return
+        end
         M._loaded = true
+        dbg.log.load'Text'
 
-        M.sprite = love.graphics.newImage'images/font.png'
+        M.sprite = love.graphics.newImage'assets/font.png'
 
         local size = Vec.image_size(M.sprite)
         local sprite_text = 'HIGSCORE:1234567890 '
@@ -21,9 +22,9 @@ function M.load(M)
                 size.x, size.y
             )
         end
-    end
-end
-
+        dbg.log.loaded'Text'
+    end,
+}
 M.__index = M
 
 local function new(_, high_score)
@@ -36,12 +37,12 @@ local function new(_, high_score)
 end
 setmetatable(M, {__call = new})
 
-function M:draw(pos, text, settings)
-    local SCALE = settings.SCALE
+function M:draw(pos, size, text)
+    local SCALE = size * SETTINGS.SCALE()
     for i = 1, #text do
         local c = text:sub(i, i)
 
-        local screen_pos = Vec(pos.x + i - 1, pos.y):toscreen(settings)
+        local screen_pos = Vec(pos.x + i - 1, pos.y):toscreen{font = true}
         local quad = self.QUADS[c]
         if quad == nil then
             error(string.format('No font specified for char %q', tostring(c)))

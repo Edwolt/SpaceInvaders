@@ -5,7 +5,7 @@ T.__index = T
 local function new(_, duration)
     local self = {
         time = 0,
-        duration = duration or 1,
+        duration = duration,
     }
 
     setmetatable(self, T)
@@ -32,7 +32,7 @@ C.__index = C
 local function new(_, duration)
     local self = {
         time = 0,
-        duration = duration or 1,
+        duration = duration,
         active = false,
     }
 
@@ -42,7 +42,9 @@ end
 setmetatable(C, {__call = new})
 
 function C:update(dt)
-    self.time = self.time + dt
+    if self.active then
+        self.time = self.time + dt
+    end
 end
 
 function C:clock(f, ...)

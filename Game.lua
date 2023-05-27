@@ -1,54 +1,47 @@
 local Vec = require'modules.Vec'
 local time = require'modules.time'
-local Key = require'modules.key'
+local Key = SETTINGS.Key
 
 local Spaceship = require'objects.Spaceship'
 local AlienSwarm = require'objects.AlienSwarm'
+local Text = require'objects.Text'
 local HUD = require'objects.HUD'
 local Bullet = require'objects.Bullet'
 
 local M = {
-    SETTINGS = nil,
+    _loaded = false,
+    load = function(M)
+        if M._loaded then
+            return
+        end
+        M._loaded = true
+        dbg.log.load'Game'
+
+        Spaceship:load()
+        AlienSwarm:load()
+        HUD:load()
+
+        dbg.log.loaded'Game'
+    end,
 }
-
-function M.load(M)
-    local SETTINGS = {
-        BLOCK_SIZE = Vec(16, 16),
-        SCREEN_BLOCKS = Vec(16, 15),
-        SPACESHIP_VELOCITY = 5,
-        BULLET_VELOCITY = 15,
-        KEYBOARD_COOLDOWN = 0.2,
-    }
-    SETTINGS.SCALE = Vec.window_size() /
-        (SETTINGS.BLOCK_SIZE * SETTINGS.SCREEN_BLOCKS)
-
-    M.key = Key(SETTINGS)
-    M.SETTINGS = SETTINGS
-
-    Spaceship:load()
-    AlienSwarm:load()
-    HUD:load()
-end
-
 M.__index = M
 
 
 local function new(_)
-    local SCREEN_BLOCKS = M.SETTINGS.SCREEN_BLOCKS
+    local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
 
-    local spaceship = Spaceship()
-    local spaceship_size = spaceship:size(M.SETTINGS)
+    local spaceship = Spaceship(Vec(0, 0))
+    local spaceship_size = spaceship:size()
     spaceship.pos.x = SCREEN_BLOCKS.x / 2 - spaceship_size.x / 2
     spaceship.pos.y = SCREEN_BLOCKS.y - 1
 
     local self = {
-        score = HUD(),
+        hud = HUD(),
         spaceship = spaceship,
-        swarm = AlienSwarm{3, 7, 5, timer = 2} ,
-        bullets_timers = {
-            clean = time.Timer(1),
-        },
+        swarm = AlienSwarm{3, 7, 5, timing = SETTINGS.SWARM_TIMING} ,
+        bullets_timer_clean = time.Timer(5),
         bullets = {},
+        debug = false,
     }
 
     setmetatable(self, M)
@@ -58,62 +51,65 @@ setmetatable(M, {__call = new})
 
 
 function M:draw()
-    self.score:draw(self.SETTINGS)
-    self.spaceship:draw(self.SETTINGS)
-    self.swarm:draw(self.SETTINGS)
-    for _, b in ipairs(self.bullets) do
-        b:draw(self.SETTINGS)
+    self.hud:draw()
+    self.spaceship:draw()
+    self.swarm:draw()
+    for _, bullet in ipairs(self.bullets) do
+        bullet:draw()
+    end
+
+    if self.debug then
+        self.spaceship:collider():draw()
+        self.swarm:collider():draw()
+        for _, bullet in ipairs(self.bullets) do
+            bullet:collider():draw()
+        end
     end
 end
 
+function M:pauseDraw()
+    self.hud:draw()
+    self.spaceship:draw()
+    self.spaceship:draw()
+end
+
 function M:update(dt)
-    local key = self.key
+    Key:update(dt)
 
     -- Update spaceship movement direction
     local dir = Vec(0, 0)
-    key:right(function()
+    Key:right(function()
         dir.x = dir.x + 1
     end)
-    key:left(function()
+    Key:left(function()
         dir.x = dir.x - 1
     end)
-    key:shoot(function()
+    Key:shoot(function()
         self.bullets[#self.bullets + 1] = Bullet(self.spaceship.pos)
     end)
     self.spaceship:move(dir:versor())
 
     -- Updates
-    self.spaceship:update(dt, self.SETTINGS)
-    self.swarm:update(dt, self.SETTINGS)
+    self.spaceship:update(dt)
+    self.swarm:update(dt)
 
-    self.bullets_timers.cooldown:update(dt)
-    self.bullets_timers.clean:update(dt)
+    self.bullets_timer_clean:update(dt)
 
-    for _, b in ipairs(self.bullets) do
-        b:update(dt, self.SETTINGS)
+    for _, bullet in ipairs(self.bullets) do
+        bullet:update(dt)
     end
 
     -- Clen out of screen bullets
-    self.bullets_timers.clean:clock(function()
+    self.bullets_timer_clean:clock(function()
         local new_bullets = {}
-        for _, b in ipairs(self.bullets) do
-            if b.pos:isOnScreen(self.SETTINGS) then
-                new_bullets[#new_bullets + 1] = b
+        for _, bullet in ipairs(self.bullets) do
+            if bullet.pos:isOnScreen() then
+                new_bullets[#new_bullets + 1] = bullet
             end
         end
         self.bullets = new_bullets
-        inspect{#self.bullets, '#new_bullets'}
+        dbg.inspect{#self.bullets, '#bullets'}
     end)
-
-
-    inspect{#self.bullets, '#bullets'}
-end
-
-function M:resize()
-    local BLOCK_SIZE = self.SETTINGS.BLOCK_SIZE
-    local SCREEN_BLOCKS = self.SETTINGS.SCREEN_BLOCKS
-
-    self.SETTINGS.SCALE = Vec.window_size() / (BLOCK_SIZE * SCREEN_BLOCKS)
 end
 
 return M
