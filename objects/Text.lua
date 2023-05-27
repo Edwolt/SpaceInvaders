@@ -12,12 +12,19 @@ local M = {
         M.sprite = love.graphics.newImage'assets/font.png'
 
         local size = Vec.image_size(M.sprite)
-        local sprite_text = 'HIGSCORE:1234567890 '
+        local sprite_text = ' 0123456789HIGSCOREPAUMVTFLNDB:%>+[]'
         M.QUADS = {}
+
+        M.QUADS['nil'] = love.graphics.newQuad(
+            (0) * 8, 0,
+            8, 16,
+            size.x, size.y
+        )
+
         for i = 1, #sprite_text do
             local c = sprite_text:sub(i, i)
             M.QUADS[c] = love.graphics.newQuad(
-                (i - 1) * 8, 0,
+                (i) * 8, 0,
                 8, 16,
                 size.x, size.y
             )
@@ -38,19 +45,21 @@ end
 setmetatable(M, {__call = new})
 
 function M:draw(pos, size, text)
-    local SCALE = size * SETTINGS.SCALE()
+    local FONT_SIZE = size * SETTINGS.SCALE()
     for i = 1, #text do
         local c = text:sub(i, i)
 
-        local screen_pos = Vec(pos.x + i - 1, pos.y):toscreen{font = true}
+        local dpos = size * Vec((i - 1) / 2, 0)
+        local screen_pos = (pos + dpos):toscreen()
         local quad = self.QUADS[c]
         if quad == nil then
-            error(string.format('No font specified for char %q', tostring(c)))
+            dbg.print(string.format('No font specified for char %q', c))
+            quad = self.QUADS['nil']
         end
         love.graphics.draw(
             self.sprite, quad,
             screen_pos.x, screen_pos.y, 0,
-            SCALE.x, SCALE.y
+            FONT_SIZE.x, FONT_SIZE.y
         )
     end
 end

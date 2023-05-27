@@ -1,5 +1,3 @@
-local clone = require'utils.clone'
-
 local Vec = require'modules.Vec'
 local Text = require'objects.Text'
 local Spaceship = require'objects.Spaceship'
@@ -41,8 +39,8 @@ end
 setmetatable(M, {__call = new})
 
 function M:draw()
-    Text:draw(Vec(0, 0), 1 / 2, string.format('HIGH:  %05d', self.high_score))
-    Text:draw(Vec(0, 1), 1 / 2, string.format('SCORE: %05d', self.score))
+    Text:draw(Vec(0, 0), 0.5, string.format('HIGH:  %05d', self.high_score))
+    Text:draw(Vec(0, 0.5), 0.5, string.format('SCORE: %05d', self.score))
 
     for i = 1, self.lives do
         self.LIVES[i]:draw()

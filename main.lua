@@ -60,6 +60,9 @@ function love.keypressed(key)
     Key:fullscreen(function()
         love.window.setFullscreen(not love.window.getFullscreen())
     end)
+    Key:debug(function()
+        game.debug = not game.debug
+    end)
 end
 
 function love.resize(w, h)

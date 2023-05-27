@@ -71,6 +71,21 @@ function M:pauseDraw()
     self.hud:draw()
     self.spaceship:draw()
     self.spaceship:draw()
+
+    local size = 3
+    local text = '% PAUSE'
+    local pos = SETTINGS.SCREEN_BLOCKS / 2
+    pos.y = pos.y - 3 -- Space to instructions
+    pos.x = pos.x - #text / 2
+    pos = pos - size / 2
+    Text:draw(pos, size, text)
+
+    pos.y = pos.y + 4
+    Text:draw(pos + Vec(3, 0), 1, '+>MOVE')
+    Text:draw(pos + Vec(2.5, 1), 1, '[]>SHOOT')
+    Text:draw(pos + Vec(3, 2), 1, 'F>FULLSCREEN')
+    Text:draw(pos + Vec(3, 3), 1, 'L>LEAVE')
+    Text:draw(pos + Vec(3, 4), 1, 'C>DEBUG')
 end
 
 function M:update(dt)

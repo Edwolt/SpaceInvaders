@@ -140,11 +140,8 @@ function M.__tostring(vec)
 end
 
 ----- Misc Methods -----
-function M:toscreen(opts)
-    opts = opts or {}
-    local font = opts.font or false
-
-    local SCALE = font and SETTINGS.FONT_SCALE() or SETTINGS.SCALE()
+function M:toscreen()
+    local SCALE = SETTINGS.SCALE()
     local BLOCK_SIZE = SETTINGS.BLOCK_SIZE
     return SCALE * BLOCK_SIZE * self
 end

@@ -20,6 +20,8 @@ function M:update(dt)
     self.shootCooldown:update(dt)
 end
 
+----- Special Keys -----
+
 function M:quit(f, ...)
     if keyIsDown'l' then
         f(...)
@@ -38,6 +40,14 @@ function M:fullscreen(f, ...)
     end
 end
 
+function M:debug(f, ...)
+    if keyIsDown'c' then
+        f(...)
+    end
+end
+
+----- Game keys -----
+
 function M:right(f, ...)
     if keyIsDown'right' or keyIsDown'a' then
         f(...)
@@ -51,8 +61,6 @@ function M:left(f, ...)
 end
 
 function M:shoot(f, ...)
-    local run = false
-
     if keyIsDown'space' or keyIsDown'w' then
         self.spacePressed = true
     end
