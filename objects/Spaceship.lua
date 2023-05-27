@@ -37,11 +37,11 @@ function M:draw(settings)
 end
 
 function M:update(dt, settings)
-    local BLOCK_NUMBER = settings.BLOCK_NUMBER
+    local SCREEN_BLOCKS = settings.SCREEN_BLOCKS
     local VELOCITY = settings.SPACESHIP_VELOCITY
     self.pos = self.pos + (dt * VELOCITY * self.vel)
 
-    self.pos.x = clamp(0, self.pos.x, BLOCK_NUMBER.x - self:size(settings).x)
+    self.pos.x = clamp(0, self.pos.x, SCREEN_BLOCKS.x - self:size(settings).x)
 end
 
 function M:size(settings)

@@ -149,4 +149,11 @@ function M:toscreen(settings)
     return SCALE * BLOCK_SIZE * self
 end
 
+function M:isOnScreen(settings)
+    local SCREEN_BLOCKS = settings.SCREEN_BLOCKS
+    local on_x = 0 < self.x and self.x < SCREEN_BLOCKS.x
+    local on_y = 0 < self.y and self.y < SCREEN_BLOCKS.y
+    return on_x and on_y
+end
+
 return M

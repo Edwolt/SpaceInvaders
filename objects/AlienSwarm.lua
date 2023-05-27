@@ -1,6 +1,6 @@
 local Vec = require'modules.Vec'
 local Alien = require'objects.Alien'
-local Timer = require'modules.Timer'
+local time = require'modules.time'
 
 local M = {_loaded = false}
 
@@ -13,7 +13,12 @@ end
 
 M.__index = M
 
-local function new(_, n, m, d)
+local function new(_, opts)
+    local n = opts[1]
+    local m = opts[2]
+    local d = opts[3]
+    local timing = opts.timing
+
     local aliens = {}
     for i = 1, n do
         for j = 1, m do
@@ -35,7 +40,7 @@ local function new(_, n, m, d)
         aliens = aliens,
         movements = movements,
         m = 0,
-        timer = Timer(0.2),
+        timer = time.Timer(timing),
     }
 
     setmetatable(self, M)
