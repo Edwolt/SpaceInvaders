@@ -12,7 +12,7 @@ del_highscore:
 
 $(NAME).zip: $(ALL) del_highscore
 	rm -f $(NAME).zip
-	zip $(NAME).zip $(ALL)
+	zip $(NAME).zip $(ALL) \*.zip \*.love
 
 $(NAME).love: $(CODE) del_highscore
 	rm -f $(NAME).love

@@ -1,7 +1,7 @@
 local color = require'modules.color'
+local quads = require'modules.quads'
 local Vec = require'modules.Vec'
 local Collider = require'modules.Collider'
-local quads = require'modules.quads'
 
 local Bullet = require'objects.Bullet'
 

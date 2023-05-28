@@ -204,7 +204,7 @@ end
 
 function M:drawGameOver()
     love.graphics.setColor(color.ORANGE)
-    local text
+    local text = {'BUG', 'HAPPENED'}
     if self.difficult.level > 10 then
         text = {'CONGRATS'}
     elseif self.swarm:reachBottomRow() then
@@ -470,7 +470,6 @@ function M:update(dt)
             end
         end
     )
-
 
     Collider.checkCollisionsNtoM(
         col_spaceship, col_aliensBullets,

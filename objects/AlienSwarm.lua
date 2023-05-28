@@ -1,7 +1,6 @@
+local timer = require'modules.timer'
 local Vec = require'modules.Vec'
 local Alien = require'objects.Alien'
-local timer = require'modules.timer'
-local Bullet = require'objects.Bullet'
 
 local M = {
     _loaded = false,

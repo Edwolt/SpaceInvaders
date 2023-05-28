@@ -1,8 +1,8 @@
 local color = require'modules.color'
-local Vec = require'modules.Vec'
-local Collider = require'modules.Collider'
 local quads = require'modules.quads'
 local timer = require'modules.timer'
+local Vec = require'modules.Vec'
+local Collider = require'modules.Collider'
 
 local M = {
     _loaded = false,

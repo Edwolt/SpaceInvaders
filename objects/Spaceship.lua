@@ -1,6 +1,5 @@
 local clamp = require'utils.clamp'
 local color = require'modules.color'
-
 local Vec = require'modules.Vec'
 local Collider = require'modules.Collider'
 

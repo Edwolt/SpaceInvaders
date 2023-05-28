@@ -1,5 +1,5 @@
-local timer = require'modules.timer'
 local keyIsDown = love.keyboard.isDown
+local timer = require'modules.timer'
 
 M = {}
 M.__index = M

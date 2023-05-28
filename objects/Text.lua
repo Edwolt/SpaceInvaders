@@ -1,6 +1,4 @@
 local Vec = require'modules.Vec'
-local color = require'modules.color'
-local quads = require'modules.quads'
 
 local M = {
     _loaded = false,

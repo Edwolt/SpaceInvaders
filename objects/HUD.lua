@@ -1,7 +1,7 @@
+local color = require'modules.color'
 local Vec = require'modules.Vec'
 local Text = require'objects.Text'
 local Spaceship = require'objects.Spaceship'
-local color = require'modules.color'
 
 local function loadHighscore()
     dbg.log.load'highscore'

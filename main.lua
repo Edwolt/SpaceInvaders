@@ -8,8 +8,6 @@ local Game = require'Game'
 local Key = SETTINGS.Key
 
 local game
-local pause = false
-
 
 function love.load()
     dbg.print'Panetone > Chocotone'
@@ -50,7 +48,7 @@ end
 
 function love.keypressed(key)
     if key == 'r' then
-        dbg.print('Restart')
+        dbg.print 'Restart'
         game.hud:updateHighscore()
         game = Game()
     end
