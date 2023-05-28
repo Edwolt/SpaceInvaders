@@ -52,6 +52,7 @@ sendo as teclas e as ações as seguintes:
 | Seta para direita  | Mover para direita  |
 | D                  | Mover para direita  |
 | Espaço             | Atirar              |
+| R                  | Restart             |
 | F                  | Fullscreen          |
 | F11                | Fullscreen          |
 
