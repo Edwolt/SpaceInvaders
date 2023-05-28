@@ -28,7 +28,8 @@ local function new(_, opts)
     local aliens = {}
     for i = 1, n do
         for j = 1, m do
-            aliens[#aliens + 1] = Alien{Vec(1.5 * j - 1, 1.5 * i + 1), health = 1}
+            local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
+            aliens[#aliens + 1] = Alien(1, pos)
         end
     end
 

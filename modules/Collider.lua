@@ -68,4 +68,8 @@ function M.checkCollisionsNtoM(list1, list2, f, ...)
     end
 end
 
+function M.screenCollider()
+    return M(Vec(0, 0), Vec.windowSize())
+end
+
 return M

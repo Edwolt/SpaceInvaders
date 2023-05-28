@@ -21,9 +21,15 @@ local M = {
 }
 M.__index = M
 
-local function new(_, opts)
-    local pos = opts[1]
-    local health = opts.health
+local function new(_, type, pos)
+    local health
+    if type == 1 then
+        health = 1
+    elseif type == 2 then
+        health = 2
+    else
+        error('Invalid type: ' .. type)
+    end
 
     local self = {
         pos = pos,

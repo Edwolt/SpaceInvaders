@@ -6,6 +6,7 @@ local Key = SETTINGS.Key
 
 local Spaceship = require'objects.Spaceship'
 local AlienSwarm = require'objects.AlienSwarm'
+local BonusAlien = require'objects.BonusAlien'
 local Text = require'objects.Text'
 local HUD = require'objects.HUD'
 local Bullet = require'objects.Bullet'
@@ -21,6 +22,7 @@ local M = {
 
         Spaceship:load()
         AlienSwarm:load()
+        BonusAlien:load()
         HUD:load()
         Bullet:load()
 
@@ -48,8 +50,10 @@ local function new(_)
         hud = HUD(),
         spaceship = spaceship,
         swarm = AlienSwarm{3, 7, 5, timing = SETTINGS.SWARM_TIMING} ,
+        bonusAlien = nil,
         timer = {
-            cleanBullets = timer.CoolDown(5),
+            clean = timer.CoolDown(5),
+            bonus = timer.Timer(SETTINGS.BONUS_TIME()),
         },
         bullets = {
             spaceship = {},
@@ -63,13 +67,6 @@ end
 setmetatable(M, {__call = new})
 
 function M:draw()
-    -- Always visible
-    self.hud:draw(self.spaceship)
-    self.spaceship:draw()
-    if self.state.debug then
-        self:drawState()
-    end
-
     -- Visibility depends on state
     if self.state.pause then
         self:drawPause()
@@ -80,10 +77,20 @@ function M:draw()
     else
         self:drawGame()
     end
+
+    -- Always visible
+    self.hud:draw(self.spaceship)
+    self.spaceship:draw()
+    if self.state.debug then
+        self:drawState()
+    end
 end
 
 function M:drawGame()
     self.swarm:draw()
+    if self.bonusAlien ~= nil then
+        self.bonusAlien:draw()
+    end
     for _, bullet in ipairs(self.bullets.spaceship) do
         bullet:draw()
     end
@@ -93,23 +100,40 @@ function M:drawGame()
 end
 
 function M:drawDebug()
+    love.graphics.setColor(color.BLACK)
+    local col = Collider.screenCollider()
+    love.graphics.rectangle(
+        'fill',
+        col.pos.x, col.pos.y,
+        col.size.x, col.size.y
+    )
+
     self:drawGame()
 
-    if self.state.debug then
-        self.spaceship:collider():draw(color.BLUE)
-        for _, alien in ipairs(self.swarm.aliens) do
-            alien:collider():draw(
-                alien:isAlive() and color.RED or color.MAGENTA
-            )
+    self.spaceship:collider():draw(color.BLUE)
 
-            love.graphics.setColor(color.GREEN)
-            Text:draw(alien.pos, 0.5, tostring(alien:killScore()))
-        end
-        for _, bullet in ipairs(self.bullets.spaceship) do
-            bullet:collider():draw(
-                bullet:isAlive() and color.YELLOW or color.GREEN
-            )
-        end
+    for _, alien in ipairs(self.swarm.aliens) do
+        alien:collider():draw(
+            alien:isAlive() and color.RED or color.MAGENTA
+        )
+
+        love.graphics.setColor(color.GREEN)
+        Text:draw(alien.pos, 0.5, tostring(alien:killScore()))
+    end
+
+    if self.bonusAlien ~= nil then
+        self.bonusAlien:collider():draw(
+            self.bonusAlien:isAlive() and color.RED or color.MAGENTA
+        )
+
+        love.graphics.setColor(color.GREEN)
+        Text:draw(self.bonusAlien.pos, 0.5, tostring(self.bonusAlien:killScore()))
+    end
+
+    for _, bullet in ipairs(self.bullets.spaceship) do
+        bullet:collider():draw(
+            bullet:isAlive() and color.YELLOW or color.GREEN
+        )
     end
 
     self:drawState()
@@ -245,22 +269,44 @@ function M:handleGameOver()
     self.hud:updateHighscore()
 end
 
-function M:cleanBullets()
-    self.timer.cleanBullets:clock(function()
+-- Clean objects out of screen
+function M:clean()
+    self.timer.clean:clock(function()
+        local newBullets = {}
         for i, bullet in ipairs(self.bullets.spaceship) do
-            if not bullet.pos:isOnScreen() or not bullet:isAlive() then
-                table.remove(self.bullets.spaceship, i)
+            local onScreen = bullet
+                :collider()
+                :collision(Collider.screenCollider())
+
+            if onScreen and bullet:isAlive() then
+                newBullets[#newBullets + 1] = bullet
             end
         end
+        self.bullets.spaceship = newBullets
 
+        local newBullets = {}
         for i, bullet in ipairs(self.bullets.aliens) do
-            if not bullet.pos:isOnScreen() or not bullet:isAlive() then
-                table.remove(self.bullets.aliens, i)
+            local onScreen = bullet
+                :collider()
+                :collision(Collider.screenCollider())
+
+            if not onScreen or not bullet:isAlive() then
+                newBullets[#newBullets + 1] = bullet
             end
         end
 
+        local onScreen = self.bonusAlien and self.bonusAlien
+            :collider()
+            :collision(Collider.screenCollider())
+
+        if not onScreen then
+            self.bonusAlien = nil
+        end
+
+        dbg.print'Clean'
         dbg.inspect{#self.bullets.spaceship, '#bullets.spaceship'}
         dbg.inspect{#self.bullets.aliens, '#bullets.aliens'}
+        dbg.print('#bonusAlien = ' .. (self.bonusAlien and 1 or 0))
     end)
 end
 
@@ -275,13 +321,19 @@ function M:update(dt)
         dt = 10 * dt
     end
 
+    local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
     local EVILNESS = SETTINGS.EVILNESS
 
     -- Updates
+    for _, timer in pairs(self.timer) do
+        timer:update(dt)
+    end
+
     self.spaceship:update(dt)
     self.swarm:update(dt)
-
-    self.timer.cleanBullets:update(dt)
+    if self.bonusAlien ~= nil then
+        self.bonusAlien:update(dt)
+    end
 
     for _, bullet in ipairs(self.bullets.spaceship) do
         bullet:update(dt)
@@ -291,58 +343,109 @@ function M:update(dt)
     end
 
     self.swarm:shoot(dt, EVILNESS, self.bullets.aliens)
+    self.timer.bonus:clock(function()
+        self.timer.bonus.duration = SETTINGS.BONUS_TIME()
 
-    -- Clen out of screen bullets
-    self:cleanBullets()
+        local dir = love.math.random() < 0.5
+        if dir then
+            self.bonusAlien = BonusAlien(
+                Vec( -1, 1),
+                Vec(SETTINGS.SPACESHIP_VELOCITY, 0)
+            )
+        else
+            self.bonusAlien = BonusAlien(
+                Vec(SCREEN_BLOCKS.x, 1),
+                Vec( -SETTINGS.SPACESHIP_VELOCITY, 0)
+            )
+        end
+
+        dbg.print'Spawned Bonus Alien'
+    end)
+
+    -- Clean objects out of screen
+    self:clean()
 
     -- Collsions
-    local col_bullets = {}
-    local col_aliens = {}
+    local col_spaceshipBullets = {}
     for i, bullet in ipairs(self.bullets.spaceship) do
-        col_bullets[i] = bullet:collider()
+        col_spaceshipBullets[i] = bullet:collider()
     end
+
+    local col_aliensBullets = {}
+    for i, bullet in ipairs(self.bullets.aliens) do
+        col_aliensBullets[i] = bullet:collider()
+    end
+
+    local col_aliens = {}
     for i, alien in ipairs(self.swarm.aliens) do
         col_aliens[i] = alien:collider()
     end
 
-    Collider.checkCollisionsNtoM(col_bullets, col_aliens, function(i, j)
-        local bullet = self.bullets.spaceship[i]
-        local alien = self.swarm.aliens[j]
-
-        if not bullet:isAlive() then
-            return 'continue' -- Go to next bullet
-        end
-
-        if not alien:isAlive() then
-            return -- Go to next alien
-        end
-
-        bullet:damage()
-        local dscore = self.swarm:damage(j)
-        self.hud:addScore(dscore)
-    end)
-
     local col_spaceship = {self.spaceship:collider()}
-    local col_bullets = {}
-    for i, bullet in ipairs(self.bullets.aliens) do
-        col_bullets[i] = bullet:collider()
+    local col_bonusAlien = {}
+    if self.bonusAlien ~= nil then
+        col_bonusAlien[#col_bonusAlien + 1] = self.bonusAlien:collider()
     end
 
-    Collider.checkCollisionsNtoM(col_spaceship, col_bullets, function(i, j)
-        local spaceship = self.spaceship
-        local bullet = self.bullets.aliens[j]
+    Collider.checkCollisionsNtoM(
+        col_spaceshipBullets, col_aliens,
+        function(i, j)
+            local bullet = self.bullets.spaceship[i]
+            local alien = self.swarm.aliens[j]
 
-        if not spaceship:isAlive() then
-            return 'break' -- There's no need to continue chicking collision
+            if not bullet:isAlive() then
+                return 'continue' -- Go to next bullet
+            end
+
+            if not alien:isAlive() then
+                return -- Go to next alien
+            end
+
+            bullet:damage()
+            local dscore = self.swarm:damage(j)
+            self.hud:addScore(dscore)
         end
+    )
 
-        if not bullet:isAlive() then
-            return -- Go to next alien
+
+    Collider.checkCollisionsNtoM(
+        col_spaceship, col_aliensBullets,
+        function(i, j)
+            local spaceship = self.spaceship
+            local bullet = self.bullets.aliens[j]
+
+            if not spaceship:isAlive() then
+                return 'break' -- There's no need to continue chicking collision
+            end
+
+            if not bullet:isAlive() then
+                return -- Go to next bullet
+            end
+
+            bullet:damage()
+            spaceship:damage()
         end
+    )
 
-        bullet:damage()
-        spaceship:damage()
-    end)
+    Collider.checkCollisionsNtoM(
+        col_bonusAlien, col_spaceshipBullets,
+        function(i, j)
+            local bonusAlien = self.bonusAlien
+            local bullet = self.bullets.spaceship[j]
+
+            if not bonusAlien:isAlive() then
+                return 'break' -- There's no need to continue chicking collision
+            end
+
+            if not bullet:isAlive() then
+                return -- Go to next bullet
+            end
+
+            bullet:damage()
+            local dscore = bonusAlien:damage()
+            self.hud:addScore(dscore)
+        end
+    )
 
     self:handleGameOver()
 end

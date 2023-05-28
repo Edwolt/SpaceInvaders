@@ -9,9 +9,12 @@ SETTINGS = {
     -- Bullet
     BULLET_VELOCITY = Vec(0, 15),
     BULLET_COOLDOWN = 0.7,
-    -- Swarm
+    -- ALIENS
     SWARM_TIMING = 2,
     EVILNESS = 0.03,
+    BONUS_TIME = function()
+        return 5 + 7 * love.math.random()
+    end,
     -- Score
     ALIEN_ROW_SCORE = function(row)
         if row <= 3 then
@@ -26,6 +29,7 @@ SETTINGS = {
             return 25
         end
     end,
+    BONUS_ALIEN_SCORE = 500,
     HIGHSCORE_PATH = 'highscore.txt',
     -- Special Keys
     SPECIALKEY_COOLDOWN = 0.2,

@@ -28,7 +28,7 @@ do FoG (Fellowship of the Game)
 - [ ] Implementar mais de uma fase
     - [ ] Dificuldade das fases aumentar progressivamente
     - [ ] Ter mais de um tipo de alienígena
-- [ ] Inserir alienígena de bonûs que passa rapidamente no topo da tela,
+- [X] Inserir alienígena de bonûs que passa rapidamente no topo da tela,
       de tempos em tempos
 - [ ] Estruturas de colisão que protege o jogador
 
