@@ -1,5 +1,4 @@
-local M = {
-}
+local M = {}
 M.__index = M
 
 ----- Constructors -----
@@ -13,14 +12,14 @@ local function new(_, x, y)
 end
 setmetatable(M, {__call = new})
 
-function M.window_size()
+function M.windowSize()
     return M(
         love.graphics.getWidth(),
         love.graphics.getHeight()
     )
 end
 
-function M.image_size(sprite)
+function M.imageSize(sprite)
     return M(
         sprite:getWidth(),
         sprite:getHeight()
@@ -96,6 +95,10 @@ function M.__sub(a, b)
     else
         error(string.format('invalid types %s - %s', type(a), type(b)))
     end
+end
+
+function M.__unm(a)
+    return M( -a.x, -a.y)
 end
 
 function M.__mul(a, b)

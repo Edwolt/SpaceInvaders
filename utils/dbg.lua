@@ -8,6 +8,18 @@ return {
         loaded = function(name)
             print('> Loaded ' .. name)
         end,
+
+        loadedv = function(name, value)
+            print(string.format('> Loaded %s = %s', name, tostring(value)))
+        end,
+
+        save = function(name, value)
+            print(string.format('> Saving %s = %s', name, tostring(value)))
+        end,
+
+        saved = function(name)
+            print(string.format('> Saved %s', name))
+        end,
     },
     inspect = function(opts)
         local value = opts[1]

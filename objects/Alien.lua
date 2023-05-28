@@ -1,4 +1,6 @@
+local color = require'modules.color'
 local Vec = require'modules.Vec'
+local Collider = require'modules.Collider'
 
 local M = {
     _loaded = false,
@@ -9,16 +11,20 @@ local M = {
         M._loaded = true
         dbg.log.load'Alien'
 
-        M.sprite = love.graphics.newImage'assets/enemy.png'
+        M.SPRITE = love.graphics.newImage'assets/enemy.png'
 
         dbg.log.loaded'Alien'
     end,
 }
 M.__index = M
 
-local function new(_, pos)
+local function new(_, opts)
+    local pos = opts[1]
+    local health = opts.health
+
     local self = {
         pos = pos,
+        health = health,
     }
 
     setmetatable(self, M)
@@ -28,10 +34,16 @@ setmetatable(M, {__call = new})
 
 
 function M:draw()
+    if not self:isAlive() then
+        return
+    end
+
+    love.graphics.setColor(color.WHITE)
+
     local SCALE = SETTINGS.SCALE()
     local screen_pos = self.pos:toscreen()
     love.graphics.draw(
-        self.sprite,
+        self.SPRITE,
         screen_pos.x, screen_pos.y, 0,
         SCALE.x, SCALE.y
     )
@@ -55,13 +67,29 @@ function M:update(direction)
     self.pos = self.pos + dpos
 end
 
-function M:size()
-    local BLOCK_SIZE = SETTINGS.BLOCK_SIZE
-    return Vec.image_size(self.sprite) / BLOCK_SIZE
+function M:collider()
+    return Collider(self.pos, self:size())
 end
 
-function M:getCollider()
+function M:size()
+    local BLOCK_SIZE = SETTINGS.BLOCK_SIZE
+    return Vec.imageSize(self.SPRITE) / BLOCK_SIZE
+end
 
+function M:damage()
+    if not self:isAlive() then
+        return 0
+    end
+
+    self.health = self.health - 1
+    if self.health <= 0 then
+        return 1
+    end
+    return 0
+end
+
+function M:isAlive()
+    return self.health > 0
 end
 
 return M

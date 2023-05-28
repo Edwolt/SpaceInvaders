@@ -11,11 +11,12 @@ local pause = false
 
 
 function love.load()
+    dbg.print'Panetone > Chocotone'
+    dbg.print(_VERSION)
     dbg.inspect{SETTINGS, 'SETTINGS'}
     dbg.print()
 
     dbg.log.load'main'
-    print'Panetone > Chocotone'
     love.graphics.setDefaultFilter('nearest', 'nearest', 0)
 
     love.window.setTitle'Space Invaders'
@@ -36,33 +37,16 @@ function love.load()
 end
 
 function love.draw()
-    if not pause then
-        game:draw()
-    else
-        game:pauseDraw()
-    end
+    game:draw()
 end
 
 function love.update(dt)
-    if pause then
-        return
-    end
+    SETTINGS.Key:update(dt)
+    game:keydown()
     game:update(dt)
 end
 
 function love.keypressed(key)
-    Key:pause(function()
-        pause = not pause
-    end)
-    Key:quit(function()
-        love.event.quit(0)
-    end)
-    Key:fullscreen(function()
-        love.window.setFullscreen(not love.window.getFullscreen())
-    end)
-    Key:debug(function()
-        game.debug = not game.debug
-    end)
 end
 
 function love.resize(w, h)

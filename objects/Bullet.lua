@@ -1,4 +1,8 @@
+local clone = require'utils.clone'
+
+local color = require'modules.color'
 local Vec = require'modules.Vec'
+local Collider = require'modules.Collider'
 
 local M = {
     _loaded = false,
@@ -7,16 +11,24 @@ local M = {
             return
         end
         M._loaded = true
-        dgb.log.load'Bullet'
+        dbg.log.load'Bullet'
 
-        dgb.log.loaded'Bullet'
+        M.SIZE = Vec(2, 6) / SETTINGS.BLOCK_SIZE
+
+        dbg.log.loaded'Bullet'
     end,
 }
 M.__index = M
 
-local function new(_, pos)
+local function new(M, pos, vel)
+    vel = vel or SETTINGS.BULLET_VELOCITY
+
+    pos = clone(pos)
+    pos.x = pos.x + 0.5
+    pos.x = pos.x - (M.SIZE.x / SETTINGS.BLOCK_SIZE.x) / 2
     local self = {
         pos = pos,
+        health = 1,
     }
 
     setmetatable(self, M)
@@ -25,22 +37,36 @@ end
 setmetatable(M, {__call = new})
 
 function M:draw()
-    local SCALE = SETTINGS.SCALE()
-    local BLOCK_SIZE = SETTINGS.BLOCK_SIZE
+    if not self:isAlive() then
+        return
+    end
 
+    love.graphics.setColor(color.WHITE)
+
+    local screen_size = self.SIZE:toscreen()
     local screen_pos = self.pos:toscreen()
-    local size = Vec(2, 6)
-    size = size * SCALE
-
-    screen_pos.x = screen_pos.x + Vec(0.5, 0):toscreen().x
-    screen_pos.x = screen_pos.x - size.x / 2
-
-    love.graphics.rectangle('fill', screen_pos.x, screen_pos.y, size.x, size.y)
+    love.graphics.rectangle(
+        'fill',
+        screen_pos.x, screen_pos.y,
+        screen_size.x, screen_size.y
+    )
 end
 
 function M:update(dt)
     local BULLET_VELOCITY = SETTINGS.BULLET_VELOCITY
-    self.pos.y = self.pos.y - dt * BULLET_VELOCITY
+    self.pos = self.pos - dt * BULLET_VELOCITY
+end
+
+function M:damage()
+    self.health = self.health - 1
+end
+
+function M:isAlive()
+    return self.health > 0
+end
+
+function M:collider()
+    return Collider(self.pos, self.SIZE)
 end
 
 return M

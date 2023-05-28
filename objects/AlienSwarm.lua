@@ -1,6 +1,6 @@
 local Vec = require'modules.Vec'
 local Alien = require'objects.Alien'
-local time = require'modules.time'
+local timer = require'modules.timer'
 
 local M = {
     _loaded = false,
@@ -27,7 +27,7 @@ local function new(_, opts)
     local aliens = {}
     for i = 1, n do
         for j = 1, m do
-            aliens[#aliens + 1] = Alien(Vec(1.5 * j - 1, 1.5 * i))
+            aliens[#aliens + 1] = Alien{Vec(1.5 * j - 1, 1.5 * i), health = 1}
         end
     end
 
@@ -44,8 +44,8 @@ local function new(_, opts)
     local self = {
         aliens = aliens,
         movements = movements,
-        m = 0,
-        timer = time.Timer(t),
+        currentMove = 0,
+        timer = timer.Timer(t),
     }
 
     setmetatable(self, M)
@@ -53,21 +53,33 @@ local function new(_, opts)
 end
 setmetatable(M, {__call = new})
 
-
 function M:draw()
-    for _, a in ipairs(self.aliens) do
-        a:draw()
+    for _, alien in ipairs(self.aliens) do
+        alien:draw()
     end
 end
 
 function M:update(dt)
     self.timer:update(dt)
     self.timer:clock(function()
-        for _, a in ipairs(self.aliens) do
-            a:update(self.movements[self.m % #self.movements + 1])
+        for _, alien in ipairs(self.aliens) do
+            alien:update(self.movements[self.currentMove % #self.movements + 1])
         end
-        self.m = self.m + 1
+        self.currentMove = self.currentMove + 1
     end)
+end
+
+function M:damage(i)
+    return self.aliens[i]:damage()
+end
+
+function M:anyAlive()
+    for _, alien in ipairs(self.aliens) do
+        if alien:isAlive() then
+            return true
+        end
+    end
+    return false
 end
 
 return M

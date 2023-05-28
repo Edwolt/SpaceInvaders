@@ -1,13 +1,23 @@
-local time = require'modules.time'
+local timer = require'modules.timer'
 local keyIsDown = love.keyboard.isDown
 
 M = {}
 M.__index = M
 
 local function new(_)
+    local SPECIALKEY_COOLDOWN = SETTINGS.SPECIALKEY_COOLDOWN
     local BULLET_COOLDOWN = SETTINGS.BULLET_COOLDOWN
+
     local self = {
-        shootCooldown = time.CoolDown(BULLET_COOLDOWN),
+        cooldown = {
+            pause = timer.CoolDown(SPECIALKEY_COOLDOWN),
+            fullscreen = timer.CoolDown(SPECIALKEY_COOLDOWN),
+            debug = timer.CoolDown(SPECIALKEY_COOLDOWN),
+            giveup = timer.CoolDown(SPECIALKEY_COOLDOWN),
+            next = timer.CoolDown(SPECIALKEY_COOLDOWN),
+
+            shoot = timer.CoolDown(BULLET_COOLDOWN),
+        },
         shootPressed = false,
     }
 
@@ -17,7 +27,9 @@ end
 setmetatable(M, {__call = new})
 
 function M:update(dt)
-    self.shootCooldown:update(dt)
+    for _, cooldown in pairs(self.cooldown) do
+        cooldown:update(dt)
+    end
 end
 
 ----- Special Keys -----
@@ -30,46 +42,63 @@ end
 
 function M:pause(f, ...)
     if keyIsDown'escape' then
-        f(...)
+        self.cooldown.pause:clock(function(...)
+            f(...)
+        end, ...)
     end
 end
 
 function M:fullscreen(f, ...)
     if keyIsDown'f' or keyIsDown'f11' then
-        f(...)
+        self.cooldown.fullscreen:clock(function(...)
+            f(...)
+        end, ...)
     end
 end
 
 function M:debug(f, ...)
     if keyIsDown'c' then
-        f(...)
+        self.cooldown.debug:clock(function(...)
+            f(...)
+        end, ...)
+    end
+end
+
+function M:giveup(f, ...)
+    if keyIsDown'g' then
+        self.cooldown.giveup:clock(function(...)
+            f(...)
+        end, ...)
+    end
+end
+
+function M:next(f, ...)
+    if keyIsDown'n' then
+        self.cooldown.giveup:clock(function(...)
+            f(...)
+        end, ...)
     end
 end
 
 ----- Game keys -----
 
-function M:right(f, ...)
-    if keyIsDown'right' or keyIsDown'a' then
+function M:left(f, ...)
+    if keyIsDown'left' or keyIsDown'a' then
         f(...)
     end
 end
 
-function M:left(f, ...)
-    if keyIsDown'left' or keyIsDown'd' then
+function M:right(f, ...)
+    if keyIsDown'right' or keyIsDown'd' then
         f(...)
     end
 end
 
 function M:shoot(f, ...)
     if keyIsDown'space' or keyIsDown'w' then
-        self.spacePressed = true
-    end
-
-    if self.spacePressed then
-        self.shootCooldown:clock(function(...)
+        self.cooldown.shoot:clock(function(...)
             f(...)
         end, ...)
-        self.spacePressed = false
     end
 end
 

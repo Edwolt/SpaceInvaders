@@ -1,6 +1,8 @@
 local clamp = require'utils.clamp'
+local color = require'modules.color'
 
 local Vec = require'modules.Vec'
+local Collider = require'modules.Collider'
 
 local M = {
     _loaded = false,
@@ -11,7 +13,7 @@ local M = {
         M._loaded = true
         dbg.log.load'Spaceship'
 
-        M.sprite = love.graphics.newImage'assets/spaceship.png'
+        M.SPRITE = love.graphics.newImage'assets/spaceship.png'
         dbg.log.loaded'Spaceship'
     end,
 }
@@ -22,6 +24,7 @@ local function new(_, pos)
     local self = {
         pos = pos,
         vel = Vec(0, 0),
+        lifes = 3,
     }
 
     setmetatable(self, M)
@@ -30,11 +33,15 @@ end
 setmetatable(M, {__call = new})
 
 
-function M:draw()
+function M:draw(pos)
+    love.graphics.setColor(color.WHITE)
+
+    pos = pos or self.pos
+
     local SCALE = SETTINGS.SCALE()
-    local screen_pos = self.pos:toscreen()
+    local screen_pos = pos:toscreen()
     love.graphics.draw(
-        self.sprite,
+        self.SPRITE,
         screen_pos.x, screen_pos.y, 0,
         SCALE.x, SCALE.y
     )
@@ -48,17 +55,17 @@ function M:update(dt)
     self.pos.x = clamp(0, self.pos.x, SCREEN_BLOCKS.x - self:size().x)
 end
 
+function M:collider()
+    return Collider(self.pos, self:size())
+end
+
 function M:size()
     local BLOCK_SIZE = SETTINGS.BLOCK_SIZE
-    return Vec.image_size(self.sprite) / BLOCK_SIZE
+    return Vec.imageSize(self.SPRITE) / BLOCK_SIZE
 end
 
 function M:move(vel)
     self.vel = vel
-end
-
-function M:getCollider()
-
 end
 
 return M
