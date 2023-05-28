@@ -83,13 +83,28 @@ function M:damage()
 
     self.health = self.health - 1
     if self.health <= 0 then
-        return 1
+        return self:killScore()
     end
     return 0
 end
 
 function M:isAlive()
     return self.health > 0
+end
+
+-- Aliens more away from the bottom, gives more score
+function M:killScore()
+    local ALIEN_ROW_SCORE = SETTINGS.ALIEN_ROW_SCORE
+    return SETTINGS.ALIEN_ROW_SCORE(self.pos.y)
+end
+
+function M:reachBottomRow()
+    local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
+    local pos = self.pos + self:size()
+    if pos.y >= SCREEN_BLOCKS.y - 1 then
+        return true
+    end
+    return false
 end
 
 return M

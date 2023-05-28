@@ -28,7 +28,7 @@ local function new(_, opts)
     local aliens = {}
     for i = 1, n do
         for j = 1, m do
-            aliens[#aliens + 1] = Alien{Vec(1.5 * j - 1, 1.5 * i), health = 1}
+            aliens[#aliens + 1] = Alien{Vec(1.5 * j - 1, 1.5 * i + 1), health = 1}
         end
     end
 
@@ -87,11 +87,22 @@ function M:shoot(dt, evilness, bullets)
     local BULLET_VELOCITY = SETTINGS.BULLET_VELOCITY
 
     for _, alien in ipairs(self.aliens) do
-        local value = love.math.random() -- Who wouldn't love math
-        if value < dt * evilness then
-            bullets[#bullets + 1] = Bullet(alien.pos, -BULLET_VELOCITY)
+        if alien:isAlive() then
+            local value = love.math.random() -- Who wouldn't love math
+            if value < dt * evilness then
+                bullets[#bullets + 1] = Bullet(alien.pos, -BULLET_VELOCITY)
+            end
         end
     end
+end
+
+function M:reachBottomRow()
+    for _, alien in ipairs(self.aliens) do
+        if alien:isAlive() and alien:reachBottomRow() then
+            return true
+        end
+    end
+    return false
 end
 
 return M

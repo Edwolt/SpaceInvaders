@@ -1,11 +1,11 @@
 local M = {}
 
-function hex(val)
-    return {
+local function hex(val)
+    return {love.math.colorFromBytes(
         bit.rshift(bit.band(val, 0xff0000), 16),
         bit.rshift(bit.band(val, 0x00ff00), 8),
-        bit.band(val, 0x0000ff),
-    }
+        bit.band(val, 0x0000ff)
+    ),}
 end
 
 M.fromHex = hex
@@ -21,5 +21,6 @@ M.CYAN = hex(0x00ffff)
 M.MAGENTA = hex(0xff00ff)
 
 M.ORANGE = hex(0xff8800)
+inspect{M.ORANGE}
 
 return M

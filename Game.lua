@@ -43,6 +43,7 @@ local function new(_)
             debug = false,
             pause = false,
             gameOver = false,
+            fast = false,
         },
         hud = HUD(),
         spaceship = spaceship,
@@ -100,6 +101,9 @@ function M:drawDebug()
             alien:collider():draw(
                 alien:isAlive() and color.RED or color.MAGENTA
             )
+
+            love.graphics.setColor(color.GREEN)
+            Text:draw(alien.pos, 0.5, tostring(alien:killScore()))
         end
         for _, bullet in ipairs(self.bullets.spaceship) do
             bullet:collider():draw(
@@ -132,19 +136,27 @@ function M:drawPause()
 end
 
 function M:drawGameOver()
+    love.graphics.setColor(color.ORANGE)
+    inspect{color.ORANGE, 'color'}
+    inspect{{love.graphics.getColor()}, 'Color'}
     local text
-    if self.spaceship:isAlive() then
-        text = 'GAME OVER'
-    else
-        text = 'PARABENS'
+    if self.swarm:reachBottomRow() then
+        text = {'EARTH IS', 'DOOMED'}
+    elseif self.spaceship:isAlive() then
+        text = {'CONGRATS'}
+    elseif self.swarm:anyAlive() then
+        text = {'MISSION', 'FAILED'}
     end
 
-    local size = 3
-    local pos = SETTINGS.SCREEN_BLOCKS / 2
-    pos.x = pos.x - #text / 2
-    pos = pos - size / 2
-
-    Text:draw(pos, size, text)
+    for i = 1, #text do
+        local size = 3
+        local pos = SETTINGS.SCREEN_BLOCKS / 2
+        pos = pos + size * Vec(
+                ( -(0.5 + #text[i]) / 2) / 2,
+                (i - 1) - #text / 2
+            )
+        Text:draw(pos, size, text[i])
+    end
 end
 
 function M:keydown()
@@ -156,11 +168,12 @@ function M:keydown()
     end)
 
     Key:pause(function()
-        dbg.print'pause'
+        dbg.print'toggle pause'
         self.state.pause = not self.state.pause
     end)
 
     Key:fullscreen(function()
+        dbg.print'toggle fullscreen'
         love.window.setFullscreen(not love.window.getFullscreen())
     end)
 
@@ -185,6 +198,10 @@ function M:keydown()
         self.hud:addScore(dscore)
     end)
 
+    Key:fast(function()
+        self.state.fast = not self.state.fast
+    end)
+
     -- Game movemnets
     local dir = Vec(0, 0)
     Key:shoot(function()
@@ -204,10 +221,24 @@ function M:handleGameOver()
     if self.state.gameover then
         return
     end
+    local gameOver =
+        not self.spaceship:isAlive() or
+        not self.swarm:anyAlive() or
+        self.swarm:reachBottomRow()
 
-    if self.spaceship:isAlive() and self.swarm:anyAlive() then
+    if not gameOver then
         -- The game must continue
         return
+    end
+
+    if not self.spaceship:isAlive() then
+        dbg.print'Game Over: Spaceship destroyed'
+    end
+    if not self.swarm:anyAlive() then
+        dbg.print'Game Over: Earth is safe'
+    end
+    if self.swarm:reachBottomRow() then
+        dbg.print'Game Over: Earth invaded'
     end
 
     self.state.gameOver = true
@@ -240,6 +271,9 @@ function M:update(dt)
     if self.state.gameOver then
         return
     end
+    if self.state.fast then
+        dt = 10 * dt
+    end
 
     local EVILNESS = SETTINGS.EVILNESS
 
@@ -262,7 +296,6 @@ function M:update(dt)
     self:cleanBullets()
 
     -- Collsions
-    local change = false
     local col_bullets = {}
     local col_aliens = {}
     for i, bullet in ipairs(self.bullets.spaceship) do
@@ -284,7 +317,6 @@ function M:update(dt)
             return -- Go to next alien
         end
 
-        change = true
         bullet:damage()
         local dscore = self.swarm:damage(j)
         self.hud:addScore(dscore)
@@ -308,14 +340,11 @@ function M:update(dt)
             return -- Go to next alien
         end
 
-        change = true
         bullet:damage()
         spaceship:damage()
     end)
 
-    if change then
-        self:handleGameOver()
-    end
+    self:handleGameOver()
 end
 
 return M

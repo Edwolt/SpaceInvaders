@@ -68,16 +68,10 @@ setmetatable(M, {__call = new})
 function M:draw(spaceship)
     love.graphics.setColor(color.WHITE)
 
-    Text:draw(
-        Vec(0, 0), 0.5,
-        string.format('HIGH:  %07d', self.highscore * SETTINGS.SCORE_FACTOR)
-    )
-    Text:draw(
-        Vec(0, 0.5), 0.5,
-        string.format('SCORE: %07d', self.score * SETTINGS.SCORE_FACTOR)
-    )
+    Text:draw(Vec(0, 0), 0.5, string.format('HIGH:  %07d', self.highscore))
+    Text:draw(Vec(0, 0.5), 0.5, string.format('SCORE: %07d', self.score))
     for i = 1, spaceship.lifes do
-        spaceship:drawInPosition(Vec(SCREEN_BLOCKS.x  - i, 0))
+        spaceship:drawInPosition(Vec(SCREEN_BLOCKS.x - i, 0))
     end
 end
 
@@ -85,10 +79,13 @@ function M:drawState(state)
     love.graphics.setColor(color.RED)
     local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
 
-    local text = ''
-    text = text .. (state.pause and 'P' or '0')
-    text = text .. (state.gameOver and 'G' or '0')
-    text = text .. (state.debug and 'D' or '0')
+    local text = string.format(
+        '%s%s%s%s',
+        state.pause and 'P' or '0',
+        state.gameOver and 'G' or '0',
+        state.debug and 'D' or '0',
+        state.fast and 'F' or '0'
+    )
 
     local pos = Vec(0, 0)
     pos.y = 0

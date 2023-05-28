@@ -15,14 +15,14 @@ do FoG (Fellowship of the Game)
 - [X] Se um laser atingir um alienígena, ele deve ser destruído
 - [X] Se o jogador for atingido por um laser de um alienígena,
     ele deve perder uma vida
-- [ ] O jogo acaba quando:
+- [X] O jogo acaba quando:
     - [X] O jogador perde todas as suas vidas
-    - [ ] Um alienígena atinge a parte inferior da tela
+    - [X] Um alienígena atinge a parte inferior da tela
 
 # Metas Adicionais
 - [ ] Fazer menu iniciar
 - [X] Poder pausar o jogo
-- [ ] Implementar sistema de pontuação
+- [X] Implementar sistema de pontuação
     - [X] Quando o jogador destruir um alienigena
     - [X] Alienígenas mais distante da margem inferior concedem mais pontos
 - [ ] Implementar mais de uma fase
@@ -64,5 +64,5 @@ se você tiver curiosidade de testar, elas são as seguintes:
 | G     | Perder instantaneamente                                                  |
 | L     | Fechar jogo                                                              |
 | C     | Ativa o modo de debug, mostrando os colisores e as flags em `game.state` |
-| F     | Acelerar o jogo                                                          |
+| P     | Acelerar o jogo                                                          |
 

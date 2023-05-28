@@ -80,6 +80,14 @@ function M:next(f, ...)
     end
 end
 
+function M:fast(f, ...)
+    if keyIsDown'p' then
+        self.cooldown.giveup:clock(function(...)
+            f(...)
+        end, ...)
+    end
+end
+
 ----- Game keys -----
 
 function M:left(f, ...)
