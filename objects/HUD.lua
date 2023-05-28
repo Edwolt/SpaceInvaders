@@ -38,11 +38,6 @@ end
 local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
 local M = {
     _loaded = false,
-    LIFES = {
-        Spaceship(Vec(SCREEN_BLOCKS.x - 1, 0)),
-        Spaceship(Vec(SCREEN_BLOCKS.x - 2, 0)),
-        Spaceship(Vec(SCREEN_BLOCKS.x - 3, 0)),
-    },
     load = function(M)
         if M._loaded then
             return
@@ -63,7 +58,6 @@ local function new(_)
     local self = {
         highscore = loadHighscore(),
         score = 0,
-        lifes = 3,
     }
 
     setmetatable(self, M)
@@ -71,7 +65,7 @@ local function new(_)
 end
 setmetatable(M, {__call = new})
 
-function M:draw()
+function M:draw(spaceship)
     love.graphics.setColor(color.WHITE)
 
     Text:draw(
@@ -82,8 +76,8 @@ function M:draw()
         Vec(0, 0.5), 0.5,
         string.format('SCORE: %07d', self.score * SETTINGS.SCORE_FACTOR)
     )
-    for i = 1, self.lifes do
-        self.LIFES[i]:draw()
+    for i = 1, spaceship.lifes do
+        spaceship:drawInPosition(Vec(SCREEN_BLOCKS.x  - i, 0))
     end
 end
 
@@ -98,7 +92,7 @@ function M:drawState(state)
 
     local pos = Vec(0, 0)
     pos.y = 0
-    pos.x = SCREEN_BLOCKS.x - 2 - #text
+    pos.x = SCREEN_BLOCKS.x - 9
     Text:draw(pos, 1, string.format(text))
 end
 
@@ -111,14 +105,6 @@ function M:updateHighscore()
         self.highscore = self.score
         saveHighscore(self.highscore)
     end
-end
-
-function M:isSpaceshipAlive()
-    return self.lifes >= 0
-end
-
-function M:damageSpaceship()
-    self.lifes = self.lifes - 1
 end
 
 return M

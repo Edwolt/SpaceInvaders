@@ -36,7 +36,6 @@ local M = {
 M.__index = M
 
 function M:draw(pos, size, text)
-    love.graphics.setColor(color.WHITE)
     local FONT_SIZE = size * SETTINGS.SCALE()
 
     for i = 1, #text do

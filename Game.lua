@@ -1,6 +1,7 @@
 local color = require'modules.color'
 local Vec = require'modules.Vec'
 local timer = require'modules.timer'
+local Collider = require'modules.Collider'
 local Key = SETTINGS.Key
 
 local Spaceship = require'objects.Spaceship'
@@ -62,7 +63,7 @@ setmetatable(M, {__call = new})
 
 function M:draw()
     -- Always visible
-    self.hud:draw()
+    self.hud:draw(self.spaceship)
     self.spaceship:draw()
     if self.state.debug then
         self:drawState()
@@ -128,13 +129,11 @@ function M:drawPause()
     Text:draw(pos + Vec(2.5, 1), 1, '[]>SHOOT')
     Text:draw(pos + Vec(3, 2), 1, 'F>FULLSCREEN')
     Text:draw(pos + Vec(3, 3), 1, 'L>LEAVE')
-    Text:draw(pos + Vec(3, 4), 1, 'C>DEBUG')
-    Text:draw(pos + Vec(3, 5), 1, 'G>GIVE UP')
 end
 
 function M:drawGameOver()
     local text
-    if self.hud.lifes < 0 then
+    if self.spaceship:isAlive() then
         text = 'GAME OVER'
     else
         text = 'PARABENS'
@@ -172,7 +171,7 @@ function M:keydown()
 
     Key:giveup(function()
         dbg.print'giveup'
-        self.hud.lifes = -1
+        self.spaceship.lifes = -1
     end)
 
     Key:next(function()
@@ -206,7 +205,7 @@ function M:handleGameOver()
         return
     end
 
-    if self.hud:isSpaceshipAlive() and self.swarm:anyAlive() then
+    if self.spaceship:isAlive() and self.swarm:anyAlive() then
         -- The game must continue
         return
     end
@@ -242,6 +241,8 @@ function M:update(dt)
         return
     end
 
+    local EVILNESS = SETTINGS.EVILNESS
+
     -- Updates
     self.spaceship:update(dt)
     self.swarm:update(dt)
@@ -255,37 +256,66 @@ function M:update(dt)
         bullet:update(dt)
     end
 
+    self.swarm:shoot(dt, EVILNESS, self.bullets.aliens)
+
     -- Clen out of screen bullets
     self:cleanBullets()
 
-    -- Logic
-    for _, bullet in ipairs(self.bullets.spaceship) do
-        if not bullet:isAlive() then
-            goto deadBullet -- continue
-        end
-
-        local col_bullet = bullet:collider()
-        for i, alien in ipairs(self.swarm.aliens) do
-            if not alien:isAlive() then
-                goto deadAlien -- continue
-            end
-
-            local col_alien = alien:collider()
-            if col_alien:collision(col_bullet) then
-                bullet:damage()
-                local dscore = self.swarm:damage(i)
-                self.hud:addScore(dscore)
-
-                if not bullet:isAlive() then
-                    break
-                end
-            end
-            ::deadAlien::
-        end
-        ::deadBullet::
+    -- Collsions
+    local change = false
+    local col_bullets = {}
+    local col_aliens = {}
+    for i, bullet in ipairs(self.bullets.spaceship) do
+        col_bullets[i] = bullet:collider()
+    end
+    for i, alien in ipairs(self.swarm.aliens) do
+        col_aliens[i] = alien:collider()
     end
 
-    self:handleGameOver()
+    Collider.checkCollisionsNtoM(col_bullets, col_aliens, function(i, j)
+        local bullet = self.bullets.spaceship[i]
+        local alien = self.swarm.aliens[j]
+
+        if not bullet:isAlive() then
+            return 'continue' -- Go to next bullet
+        end
+
+        if not alien:isAlive() then
+            return -- Go to next alien
+        end
+
+        change = true
+        bullet:damage()
+        local dscore = self.swarm:damage(j)
+        self.hud:addScore(dscore)
+    end)
+
+    local col_spaceship = {self.spaceship:collider()}
+    local col_bullets = {}
+    for i, bullet in ipairs(self.bullets.aliens) do
+        col_bullets[i] = bullet:collider()
+    end
+
+    Collider.checkCollisionsNtoM(col_spaceship, col_bullets, function(i, j)
+        local spaceship = self.spaceship
+        local bullet = self.bullets.aliens[j]
+
+        if not spaceship:isAlive() then
+            return 'break' -- There's no need to continue chicking collision
+        end
+
+        if not bullet:isAlive() then
+            return -- Go to next alien
+        end
+
+        change = true
+        bullet:damage()
+        spaceship:damage()
+    end)
+
+    if change then
+        self:handleGameOver()
+    end
 end
 
 return M

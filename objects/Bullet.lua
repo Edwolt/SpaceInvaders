@@ -21,13 +21,13 @@ local M = {
 M.__index = M
 
 local function new(M, pos, vel)
-    vel = vel or SETTINGS.BULLET_VELOCITY
-
     pos = clone(pos)
     pos.x = pos.x + 0.5
     pos.x = pos.x - (M.SIZE.x / SETTINGS.BLOCK_SIZE.x) / 2
+
     local self = {
         pos = pos,
+        vel = vel or SETTINGS.BULLET_VELOCITY,
         health = 1,
     }
 
@@ -53,8 +53,7 @@ function M:draw()
 end
 
 function M:update(dt)
-    local BULLET_VELOCITY = SETTINGS.BULLET_VELOCITY
-    self.pos = self.pos - dt * BULLET_VELOCITY
+    self.pos = self.pos - dt * self.vel
 end
 
 function M:damage()

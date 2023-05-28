@@ -1,6 +1,7 @@
 local Vec = require'modules.Vec'
 local Alien = require'objects.Alien'
 local timer = require'modules.timer'
+local Bullet = require'objects.Bullet'
 
 local M = {
     _loaded = false,
@@ -80,6 +81,17 @@ function M:anyAlive()
         end
     end
     return false
+end
+
+function M:shoot(dt, evilness, bullets)
+    local BULLET_VELOCITY = SETTINGS.BULLET_VELOCITY
+
+    for _, alien in ipairs(self.aliens) do
+        local value = love.math.random() -- Who wouldn't love math
+        if value < dt * evilness then
+            bullets[#bullets + 1] = Bullet(alien.pos, -BULLET_VELOCITY)
+        end
+    end
 end
 
 return M

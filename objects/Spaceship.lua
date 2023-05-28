@@ -33,10 +33,12 @@ end
 setmetatable(M, {__call = new})
 
 
-function M:draw(pos)
-    love.graphics.setColor(color.WHITE)
+function M:draw()
+    self:drawInPosition(self.pos)
+end
 
-    pos = pos or self.pos
+function M:drawInPosition(pos)
+    love.graphics.setColor(color.WHITE)
 
     local SCALE = SETTINGS.SCALE()
     local screen_pos = pos:toscreen()
@@ -66,6 +68,14 @@ end
 
 function M:move(vel)
     self.vel = vel
+end
+
+function M:isAlive()
+    return self.lifes >= 0
+end
+
+function M:damage()
+    self.lifes = self.lifes - 1
 end
 
 return M
