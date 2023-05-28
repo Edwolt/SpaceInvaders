@@ -197,9 +197,9 @@ function M:drawPause()
     pos.y = pos.y + 4
     Text:draw(pos + Vec(3, 0), 1, '+>MOVE')
     Text:draw(pos + Vec(2.5, 1), 1, '[]>SHOOT')
-    Text:draw(pos + Vec(3, 3), 1, 'R>RESTART')
     Text:draw(pos + Vec(3, 2), 1, 'F>FULLSCREEN')
-    Text:draw(pos + Vec(3, 3), 1, 'L>LEAVE')
+    Text:draw(pos + Vec(3, 3), 1, 'R>RESTART')
+    Text:draw(pos + Vec(3, 4), 1, 'L>LEAVE')
 end
 
 function M:drawGameOver()

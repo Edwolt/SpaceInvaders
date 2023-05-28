@@ -1,7 +1,13 @@
+Autor: Eduardo Souza Rocha
+
 # Space Invaders
 
 Recriação do jogo Space Invaders para segunda fase do PSel (Processo Seletivo)
 do FoG (Fellowship of the Game)
+
+![Jogo](screenshots/game.png)
+![Jogo Pusado](screenshots/pause.png)
+![Mais níveis](screenshots/morelevels.png)
 
 # Metas Obrigatórias
 - [X] É um jogo digital
