@@ -73,3 +73,6 @@ se você tiver curiosidade de testar, elas são as seguintes:
 | C     | Ativa o modo de debug, mostrando os colisores e as flags em `game.state` |
 | P     | Acelerar o jogo                                                          |
 
+# Obs
+O Makefile não faz tudo automatizado do zero.
+Ainda precisa fazer coisas antes para o build funcionar

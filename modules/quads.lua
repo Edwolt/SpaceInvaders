@@ -1,3 +1,5 @@
+--- Make love.graphics.Quads for a image with one row of sprites
+--- of size `size`
 return function(qtt, size)
     local sprite_size = qtt * size
     local res = {}

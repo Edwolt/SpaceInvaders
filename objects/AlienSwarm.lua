@@ -1,3 +1,5 @@
+--- Manage a block of aliens
+
 local timer = require'modules.timer'
 local Vec = require'modules.Vec'
 local Alien = require'objects.Alien'
@@ -18,6 +20,9 @@ local M = {
 }
 M.__index = M
 
+--- The type and size of the swarm varies from level
+---
+--- timing is the interval between movements
 local function new(_, level, timing)
     local LEVEL_SWARM_ROWS = SETTINGS.LEVEL_SWARM_ROWS
     local row = LEVEL_SWARM_ROWS[level]
@@ -79,10 +84,12 @@ function M:update(dt)
     end)
 end
 
+--- Damage alien in self.aliens[i]
 function M:damage(i)
     return self.aliens[i]:damage()
 end
 
+--- Returns if there's any alien alive
 function M:anyAlive()
     for _, alien in ipairs(self.aliens) do
         if alien:isAlive() then
@@ -92,6 +99,12 @@ function M:anyAlive()
     return false
 end
 
+--- Make all aliens try to shoot
+--- The more high the evilness, more is the probability o the alien shoot
+--- 
+--- The bullet will be inserted in the list `bullets`
+---
+--- Notice that more than an alien can shoot at the same time
 function M:shoot(dt, target, evilness, bullets)
     for _, alien in ipairs(self.aliens) do
         if alien:isAlive() then
@@ -103,6 +116,7 @@ function M:shoot(dt, target, evilness, bullets)
     end
 end
 
+--- Returns if the swarm reached the bottom row
 function M:reachBottomRow()
     for _, alien in ipairs(self.aliens) do
         if alien:isAlive() and alien:reachBottomRow() then

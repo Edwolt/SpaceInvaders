@@ -1,5 +1,8 @@
+--- Module to manage Keyboard inputs
+
 local keyIsDown = love.keyboard.isDown
 local timer = require'modules.timer'
+
 
 M = {}
 M.__index = M

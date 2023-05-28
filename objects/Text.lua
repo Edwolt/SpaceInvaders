@@ -1,3 +1,5 @@
+--- Module that let draw text to the screen
+
 local Vec = require'modules.Vec'
 
 local M = {

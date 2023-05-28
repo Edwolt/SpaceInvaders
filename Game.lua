@@ -33,6 +33,7 @@ local M = {
 }
 M.__index = M
 
+--- Returns a centered spaceship
 local function _centeredSpaceship()
     local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
 
@@ -46,11 +47,13 @@ end
 
 local function new(_)
     local self = {
+        --- Data related to difficult of the level
         difficult = {
             level = 1,
             timing = SETTINGS.SWARM_TIMING,
             evilness = SETTINGS.EVILNESS,
         },
+        --- Data related to special states that the game can be
         state = {
             debug = false,
             pause = false,
@@ -77,6 +80,7 @@ local function new(_)
 end
 setmetatable(M, {__call = new})
 
+--- Go to the next level (increasing difficult)
 function M:nextLevel()
     local difficult = self.difficult
 
@@ -102,8 +106,9 @@ function M:nextLevel()
     self.explosions = {}
 end
 
+----- Drawing functions -----
+
 function M:draw()
-    -- Visibility depends on state
     if self.state.pause then
         self:drawPause()
     elseif self.state.gameOver then
@@ -114,7 +119,7 @@ function M:draw()
         self:drawGame()
     end
 
-    -- Always visible
+    -- Objects that are always visible
     self.hud:draw(self.spaceship)
     self.spaceship:draw()
     if self.state.debug then
@@ -224,6 +229,9 @@ function M:drawGameOver()
     end
 end
 
+----- Update functions -----
+
+--- Handle keys
 function M:keydown()
     -- Special keys
     Key:quit(function()
@@ -282,6 +290,8 @@ function M:keydown()
     self.spaceship:move(dir)
 end
 
+--- Check if the game is over
+--- Or if the level was finished, and set go to the next level
 function M:handleGameOver()
     if self.state.gameover then
         return
@@ -312,7 +322,7 @@ function M:handleGameOver()
     end
 end
 
--- Clean objects out of screen
+--- Clean objects out of screen
 function M:clean()
     self.timer.clean:clock(function()
         local newBullets = {}
@@ -447,6 +457,7 @@ function M:update(dt)
         col_bonusAlien[#col_bonusAlien + 1] = self.bonusAlien:collider()
     end
 
+    -- Collision of spaceship's bullets with aliens
     Collider.checkCollisionsNtoM(
         col_spaceshipBullets, col_aliens,
         function(i, j)
@@ -471,6 +482,7 @@ function M:update(dt)
         end
     )
 
+    -- Collision of aliens's bullets with spaceship
     Collider.checkCollisionsNtoM(
         col_spaceship, col_aliensBullets,
         function(i, j)
@@ -490,6 +502,7 @@ function M:update(dt)
         end
     )
 
+    -- Collision of spaceship's bullets with aliens
     Collider.checkCollisionsNtoM(
         col_bonusAlien, col_spaceshipBullets,
         function(i, j)
@@ -514,6 +527,7 @@ function M:update(dt)
         end
     )
 
+    -- Handle Game Over
     self:handleGameOver()
 end
 

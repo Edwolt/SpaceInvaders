@@ -12,6 +12,7 @@ local function new(_, x, y)
 end
 setmetatable(M, {__call = new})
 
+--- Returns Vec with the size of the windows as the components
 function M.windowSize()
     return M(
         love.graphics.getWidth(),
@@ -19,6 +20,7 @@ function M.windowSize()
     )
 end
 
+--- Returns Vec with the size of the image sprite as the components
 function M.imageSize(sprite)
     return M(
         sprite:getWidth(),
@@ -31,20 +33,25 @@ function M:clone()
     return M(self.x, self.y)
 end
 
+--- v.norm returns ||v||
 function M:norm()
     return math.sqrt(self.x * self.x + self.y * self.y)
 end
 
+--- v.dot(u) returns the dot product of v and u
 function M:dot(b)
     local a = self
     return a.x * b.x + a.y * b.y
 end
 
+--- v.dot(u) returns the cross product of v and u
 function M:cross(b)
     local a = self
     return a.x * b.y - a.y * b.x
 end
 
+--- u = v.versor() will make u have the same direction of v, but ||u|| = 1
+--- unless, v is (0, 0), then u will also be (0, 0)
 function M:versor()
     -- if self == (0, 0), thre's no versor
     if self:norm() == 0 then
@@ -54,6 +61,11 @@ function M:versor()
     -- return self / ||self||
     return self / self:norm()
 end
+
+------ Operators ------
+--- Operators will be broadcasted
+--- that's mean, for example, that u * v isn't cross or dot product
+--- But a vector with (u.x * v.x, u.y, v.y)
 
 function M.__add(a, b)
     if type(a) == 'table' and type(b) == 'table' then
@@ -143,6 +155,7 @@ function M.__tostring(vec)
 end
 
 ----- Misc Methods -----
+--- Scale vector to the size of the screen
 function M:toscreen()
     local SCALE = SETTINGS.SCALE()
     local BLOCK_SIZE = SETTINGS.BLOCK_SIZE

@@ -14,6 +14,7 @@ local function new(_, pos, size)
 end
 setmetatable(M, {__call = new})
 
+--- Checks is a collision happened
 function M.collision(a, b)
     local a1, a2 = a.pos, a.pos + a.size
     local b1, b2 = b.pos, b.pos + b.size
@@ -36,7 +37,17 @@ function M:draw(color)
     )
 end
 
---- Check collision of all against all
+--- Check collision of all against all of list
+--- list must be a list of Colliders
+---
+--- This function will iterate over the list checking if there are 
+--- collision between its elements
+--- 
+--- For every collision,
+--- f will be executed with the indices of the collisors as parameters 
+---
+--- If f returns break the iteration stops
+--- If f returns continue, look at the implementation to see what happens
 function M.checkCollisionsNtoN(list, f, ...)
     for i = 1, #list do
         for j = i + 1, #list do
@@ -53,6 +64,17 @@ function M.checkCollisionsNtoN(list, f, ...)
 end
 
 --- Check collision of list1 against list2
+--- list1 and list2 must be a list of Colliders
+---
+--- This function will iterate over the lists checking if there are 
+--- collisions between colliders of list1 and colliders of list2
+--- 
+--- For every collision,
+--- f will be executed with the indices of the collisors as parameters 
+---
+--- If f returns break the iteration stops
+--- If f returns continue the iteration will stop checking collision with the
+--- current item of the list1
 function M.checkCollisionsNtoM(list1, list2, f, ...)
     for i = 1, #list1 do
         for j = 1, #list2 do
@@ -68,6 +90,8 @@ function M.checkCollisionsNtoM(list1, list2, f, ...)
     end
 end
 
+--- Get the screen collider
+--- (Testing collision with a object tells if it's on screen)
 function M.screenCollider()
     local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
     return M(Vec(0, 0), SCREEN_BLOCKS)

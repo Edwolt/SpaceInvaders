@@ -1,4 +1,4 @@
--- Timer
+--- Interval Timer
 local T = {}
 T.__index = T
 
@@ -25,7 +25,7 @@ function T:clock(f, ...)
     end
 end
 
--- Cool Down
+--- Cool Down Timer
 local C = {}
 C.__index = C
 
@@ -58,6 +58,8 @@ function C:clock(f, ...)
 end
 
 return {
+    --- Interval Timer
     Timer = T,
+    --- Cool Down Timer
     CoolDown = C,
 }

@@ -47,6 +47,8 @@ function love.update(dt)
 end
 
 function love.keypressed(key)
+    -- Restart key is tested here
+    -- So it's easy to create a new game
     if key == 'r' then
         dbg.print 'Restart'
         game.hud:updateHighscore()

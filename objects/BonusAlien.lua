@@ -77,7 +77,7 @@ function M:isAlive()
     return self.health > 0
 end
 
--- Aliens more away from the bottom, gives more score
+--- Returns the score for killing this alien
 function M:killScore()
     return SETTINGS.BONUS_ALIEN_SCORE
 end

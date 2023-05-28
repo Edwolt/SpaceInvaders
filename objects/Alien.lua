@@ -16,7 +16,7 @@ local M = {
 
         M.SPRITE = love.graphics.newImage'assets/enemy.png'
         M.SPRITE2 = love.graphics.newImage'assets/enemy2.png'
-        M.SPRITE2X = love.graphics.newImage'assets/enemy2x.png'
+        M.SPRITE2X = love.graphics.newImage'assets/enemy2x.png' -- alien 2 with damage
         M.SPRITE3 = love.graphics.newImage'assets/enemy3.png'
 
         M._size = Vec(16, 16)
@@ -56,6 +56,8 @@ function M:draw(frame)
     end
 
     love.graphics.setColor(color.WHITE)
+
+    -- Get what sprite to draw
     local sprite
     if self.type == 1 then
         sprite = self.SPRITE
@@ -71,6 +73,7 @@ function M:draw(frame)
         error('Invalid type: ' .. self.type)
     end
 
+    -- Draw the sprite
     local SCALE = SETTINGS.SCALE()
     local screen_pos = self.pos:toscreen()
 
@@ -81,6 +84,12 @@ function M:draw(frame)
     )
 end
 
+-- Move alien in the given direction
+-- direction can be:
+-- * 'right'
+-- * 'left'
+-- * 'up'
+-- * 'down'
 function M:update(direction)
     local dpos
     if direction == 'right' then
@@ -124,7 +133,7 @@ function M:isAlive()
     return self.health > 0
 end
 
--- Aliens more away from the bottom, gives more score
+--- Return the score given if the alien is killed
 function M:killScore()
     local ALIEN_ROW_SCORE = SETTINGS.ALIEN_ROW_SCORE
     if self.type == 1 then
@@ -134,6 +143,7 @@ function M:killScore()
     end
 end
 
+--- Returns if the alien reached the bottom row
 function M:reachBottomRow()
     local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
     local pos = self.pos + self:size()
@@ -143,6 +153,9 @@ function M:reachBottomRow()
     return false
 end
 
+--- Shoot
+--- If the alien has the skill to aim the target (type 3)
+--- it whill do so
 function M:shoot(target)
     local BULLET_VELOCITY = SETTINGS.BULLET_VELOCITY
 

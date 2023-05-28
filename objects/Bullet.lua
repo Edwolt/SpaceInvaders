@@ -27,7 +27,7 @@ local function new(M, pos, vel)
     local self = {
         pos = pos,
         vel = vel or SETTINGS.BULLET_VELOCITY,
-        health = 1,
+        health = 1, -- The health of the bullet is how much damage it causes
     }
 
     setmetatable(self, M)

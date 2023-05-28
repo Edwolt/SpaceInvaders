@@ -3,6 +3,7 @@ local Vec = require'modules.Vec'
 local Text = require'objects.Text'
 local Spaceship = require'objects.Spaceship'
 
+--- Load highscore from the file
 local function loadHighscore()
     dbg.log.load'highscore'
 
@@ -20,6 +21,7 @@ local function loadHighscore()
     return highscore or 0
 end
 
+--- Write Highscore to the file
 local function saveHighscore(value)
     dbg.log.save('highscore', value)
 
@@ -66,6 +68,8 @@ end
 setmetatable(M, {__call = new})
 
 function M:draw(spaceship)
+    -- It needs the spaceship as parameter to know how many lives to draw
+    -- And to hace the sprite for drawing
     love.graphics.setColor(color.WHITE)
 
     Text:draw(Vec(0, 0), 0.5, string.format('HIGH:  %07d', self.highscore))
@@ -97,6 +101,10 @@ function M:addScore(dscore)
     self.score = self.score + dscore
 end
 
+--- Update the Highscore
+--- I decided to make highscore only update when the game is finish
+---
+--- Also saves highscore in file
 function M:updateHighscore()
     if self.score > self.highscore then
         self.highscore = self.score

@@ -1,5 +1,6 @@
 local M = {}
 
+--- Get a hexadecimal number and return its color as a table
 local function hex(val)
     return {love.math.colorFromBytes(
         bit.rshift(bit.band(val, 0xff0000), 16),

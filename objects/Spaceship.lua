@@ -36,6 +36,8 @@ function M:draw()
     self:drawInPosition(self.pos)
 end
 
+--- Draw the spaceship in a given position
+--- Differently from the draw method that draw where the spaceship is
 function M:drawInPosition(pos)
     love.graphics.setColor(color.WHITE)
 
@@ -65,6 +67,8 @@ function M:size()
     return Vec.imageSize(self.SPRITE) / BLOCK_SIZE
 end
 
+--- Set the velocity of the spaceship
+--- Can be used to set the direction of the spaceship
 function M:move(vel)
     self.vel = vel
 end
