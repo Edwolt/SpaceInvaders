@@ -13,6 +13,8 @@ local M = {
         dbg.log.load'Alien'
 
         M.SPRITE = love.graphics.newImage'assets/enemy.png'
+        M.SPRITE2 = love.graphics.newImage'assets/enemy2.png'
+        M.SPRITE2X = love.graphics.newImage'assets/enemy2x.png'
 
         M._size = Vec(16, 16)
         M.QUADS = quads(2, M._size)
@@ -32,6 +34,7 @@ local function new(_, type, pos)
     end
 
     local self = {
+        type = type,
         pos = pos,
         health = health,
     }
@@ -48,11 +51,24 @@ function M:draw(frame)
     end
 
     love.graphics.setColor(color.WHITE)
+    local sprite
+    if self.type == 1 then
+        sprite = self.SPRITE
+    elseif self.type == 2 then
+        if self.health == 2 then
+            sprite = self.SPRITE2
+        else -- health == 1
+            sprite = self.SPRITE2X
+        end
+    else
+        error('Invalid type: ' .. self.type)
+    end
 
     local SCALE = SETTINGS.SCALE()
     local screen_pos = self.pos:toscreen()
+
     love.graphics.draw(
-        self.SPRITE, self.QUADS[frame % 2 + 1],
+        sprite, self.QUADS[frame % 2 + 1],
         screen_pos.x, screen_pos.y, 0,
         SCALE.x, SCALE.y
     )
@@ -104,7 +120,11 @@ end
 -- Aliens more away from the bottom, gives more score
 function M:killScore()
     local ALIEN_ROW_SCORE = SETTINGS.ALIEN_ROW_SCORE
-    return SETTINGS.ALIEN_ROW_SCORE(self.pos.y)
+    if self.type == 1 then
+        return SETTINGS.ALIEN_ROW_SCORE(self.pos.y)
+    else
+        return SETTINGS.ALIEN_ROW_SCORE(self.pos.y) + 50
+    end
 end
 
 function M:reachBottomRow()

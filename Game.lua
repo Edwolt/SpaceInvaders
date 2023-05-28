@@ -31,16 +31,24 @@ local M = {
 }
 M.__index = M
 
-
-local function new(_)
+local function _centeredSpaceship()
     local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
 
     local spaceship = Spaceship(Vec(0, 0))
     local spaceship_size = spaceship:size()
     spaceship.pos.x = SCREEN_BLOCKS.x / 2 - spaceship_size.x / 2
     spaceship.pos.y = SCREEN_BLOCKS.y - 1
+    return spaceship
+end
 
+
+local function new(_)
     local self = {
+        difficult = {
+            level = 1,
+            timing = SETTINGS.SWARM_TIMING,
+            evilness = SETTINGS.EVILNESS,
+        },
         state = {
             debug = false,
             pause = false,
@@ -48,11 +56,11 @@ local function new(_)
             fast = false,
         },
         hud = HUD(),
-        spaceship = spaceship,
-        swarm = AlienSwarm{3, 7, 5, timing = SETTINGS.SWARM_TIMING} ,
+        spaceship = _centeredSpaceship(),
+        swarm = AlienSwarm{3, 7, 5, timing = SETTINGS.SWARM_TIMING, level = 1} ,
         bonusAlien = nil,
         timer = {
-            clean = timer.CoolDown(5),
+            clean = timer.CoolDown(0),
             bonus = timer.Timer(SETTINGS.BONUS_TIME()),
         },
         bullets = {
@@ -65,6 +73,29 @@ local function new(_)
     return self
 end
 setmetatable(M, {__call = new})
+
+function M:nextLevel()
+    local difficult = self.difficult
+
+    difficult.level = difficult.level + 1
+    difficult.swarmTiming = difficult.timing * 0.6
+    difficult.evilness = difficult.evilness * 1.5
+
+    self.spaceship = _centeredSpaceship()
+    self.swarm = AlienSwarm{
+        3, 7, 5,
+        timing = difficult.swarmTiming,
+        level = difficult.level,
+    }
+    self.bonusAlien = nil
+    for _, timer in pairs(self.timer) do
+        timer.time = 0
+    end
+    self.bullets = {
+        spaceship = {},
+        aliens = {},
+    }
+end
 
 function M:draw()
     -- Visibility depends on state
@@ -101,11 +132,14 @@ end
 
 function M:drawDebug()
     love.graphics.setColor(color.BLACK)
+
     local col = Collider.screenCollider()
+    local screen_pos = col.pos:toscreen()
+    local screen_size = col.size:toscreen()
     love.graphics.rectangle(
         'fill',
-        col.pos.x, col.pos.y,
-        col.size.x, col.size.y
+        screen_pos.x, screen_pos.y,
+        screen_size.x, screen_size.y
     )
 
     self:drawGame()
@@ -202,7 +236,7 @@ function M:keydown()
     end)
 
     Key:debug(function()
-        dbg.print'set debug'
+        dbg.print'toggle debug'
         self.state.debug = not self.state.debug
     end)
 
@@ -255,18 +289,20 @@ function M:handleGameOver()
         return
     end
 
+    self.hud:updateHighscore()
+
     if not self.spaceship:isAlive() then
         dbg.print'Game Over: Spaceship destroyed'
+        self.state.gameOver = true
     end
     if not self.swarm:anyAlive() then
         dbg.print'Game Over: Earth is safe'
+        self:nextLevel()
     end
     if self.swarm:reachBottomRow() then
         dbg.print'Game Over: Earth invaded'
+        self.state.gameOver = true
     end
-
-    self.state.gameOver = true
-    self.hud:updateHighscore()
 end
 
 -- Clean objects out of screen
@@ -290,10 +326,11 @@ function M:clean()
                 :collider()
                 :collision(Collider.screenCollider())
 
-            if not onScreen or not bullet:isAlive() then
+            if onScreen and bullet:isAlive() then
                 newBullets[#newBullets + 1] = bullet
             end
         end
+        self.bullets.aliens = newBullets
 
         local onScreen = self.bonusAlien and self.bonusAlien
             :collider()
@@ -322,7 +359,6 @@ function M:update(dt)
     end
 
     local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
-    local EVILNESS = SETTINGS.EVILNESS
 
     -- Updates
     for _, timer in pairs(self.timer) do
@@ -342,7 +378,7 @@ function M:update(dt)
         bullet:update(dt)
     end
 
-    self.swarm:shoot(dt, EVILNESS, self.bullets.aliens)
+    self.swarm:shoot(dt, self.difficult.evilness, self.bullets.aliens)
     self.timer.bonus:clock(function()
         self.timer.bonus.duration = SETTINGS.BONUS_TIME()
 

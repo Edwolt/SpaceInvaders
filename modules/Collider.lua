@@ -19,7 +19,7 @@ function M.collision(a, b)
     local b1, b2 = b.pos, b.pos + b.size
 
     local on_x = a1.x < b2.x and a2.x > b1.x
-    local on_y = a1.y < b2.y and a2.y > b2.y
+    local on_y = a1.y < b2.y and a2.y > b1.y
     return on_x and on_y
 end
 
@@ -69,7 +69,8 @@ function M.checkCollisionsNtoM(list1, list2, f, ...)
 end
 
 function M.screenCollider()
-    return M(Vec(0, 0), Vec.windowSize())
+    local SCREEN_BLOCKS = SETTINGS.SCREEN_BLOCKS
+    return M(Vec(0, 0), SCREEN_BLOCKS)
 end
 
 return M

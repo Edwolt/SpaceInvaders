@@ -24,12 +24,54 @@ local function new(_, opts)
     local m = opts[2]
     local d = opts[3]
     local t = opts.timing
+    local level = opts.level
 
     local aliens = {}
-    for i = 1, n do
-        for j = 1, m do
-            local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
-            aliens[#aliens + 1] = Alien(1, pos)
+    if level < 3 then
+        for i = 1, n do
+            for j = 1, m do
+                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
+                aliens[#aliens + 1] = Alien(1, pos)
+            end
+        end
+    elseif level == 3 then
+        for i = 1, 1 do
+            for j = 1, m do
+                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
+                aliens[#aliens + 1] = Alien(2, pos)
+            end
+        end
+        for i = 2, n do
+            for j = 1, m do
+                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
+                aliens[#aliens + 1] = Alien(1, pos)
+            end
+        end
+    elseif level == 4 then
+        for i = 1, 1 do
+            for j = 1, m do
+                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
+                aliens[#aliens + 1] = Alien(2, pos)
+            end
+        end
+        for i = 2, n - 1 do
+            for j = 1, m do
+                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
+                aliens[#aliens + 1] = Alien(1, pos)
+            end
+        end
+        for i = n, n do
+            for j = 1, m do
+                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
+                aliens[#aliens + 1] = Alien(2, pos)
+            end
+        end
+    elseif level == 5 then
+        for i = 1, n do
+            for j = 1, m do
+                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
+                aliens[#aliens + 1] = Alien(2, pos)
+            end
         end
     end
 
