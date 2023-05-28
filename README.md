@@ -25,12 +25,12 @@ do FoG (Fellowship of the Game)
 - [X] Implementar sistema de pontuação
     - [X] Quando o jogador destruir um alienigena
     - [X] Alienígenas mais distante da margem inferior concedem mais pontos
-- [ ] Implementar mais de uma fase
-    - [ ] Dificuldade das fases aumentar progressivamente
-    - [ ] Ter mais de um tipo de alienígena
+- [X] Implementar mais de uma fase
+    - [X] Dificuldade das fases aumentar progressivamente
+    - [X] Ter mais de um tipo de alienígena
 - [X] Inserir alienígena de bonûs que passa rapidamente no topo da tela,
       de tempos em tempos
-- [ ] Estruturas de colisão que protege o jogador
+- [ ] Estruturas que protege o jogador
 
 
 # Outras Funcionalidades
@@ -38,7 +38,7 @@ do FoG (Fellowship of the Game)
 - [X] Criar menu de pausa
 - [X] Janela pode ser redimensionada
     - [X] É possível usar tela cheia
-- [ ] Efeito de explosão para o alienígena
+- [X] Efeito de explosão para o alienígena
 
 # Controles
 O jogo é controlado através do teclado,

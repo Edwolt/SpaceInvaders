@@ -53,7 +53,7 @@ function M:draw()
 end
 
 function M:update(dt)
-    self.pos = self.pos - dt * self.vel
+    self.pos = self.pos + dt * self.vel
 end
 
 function M:damage()

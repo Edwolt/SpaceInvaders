@@ -7,13 +7,26 @@ SETTINGS = {
     SCREEN_BLOCKS = Vec(16, 15),
     SPACESHIP_VELOCITY = 5,
     -- Bullet
-    BULLET_VELOCITY = Vec(0, 15),
+    BULLET_VELOCITY = Vec(0, -15),
     BULLET_COOLDOWN = 0.7,
     -- ALIENS
     SWARM_TIMING = 2,
+    SWARM_SIZE = {numColumns = 7, numMovements = 5},
+    LEVEL_SWARM_ROWS = {
+        [1] = {1, 1, 1},
+        [2] = {1, 1, 1, 1},
+        [3] = {2, 1, 1, 1},
+        [4] = {2, 1, 1, 2},
+        [5] = {2, 3, 1, 1},
+        [6] = {2, 1, 1, 2},
+        [7] = {2, 3, 3, 2},
+        [8] = {3, 3, 2, 2},
+        [9] = {3, 3, 2, 2, 2},
+        [10] = {3, 3, 3, 2, 2, 2},
+    },
     EVILNESS = 0.03,
     BONUS_TIME = function()
-        return 5 + 7 * love.math.random()
+        return 7 + 14 * love.math.random()
     end,
     -- Score
     ALIEN_ROW_SCORE = function(row)

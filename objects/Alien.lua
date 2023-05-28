@@ -3,6 +3,8 @@ local Vec = require'modules.Vec'
 local Collider = require'modules.Collider'
 local quads = require'modules.quads'
 
+local Bullet = require'objects.Bullet'
+
 local M = {
     _loaded = false,
     load = function(M)
@@ -15,6 +17,7 @@ local M = {
         M.SPRITE = love.graphics.newImage'assets/enemy.png'
         M.SPRITE2 = love.graphics.newImage'assets/enemy2.png'
         M.SPRITE2X = love.graphics.newImage'assets/enemy2x.png'
+        M.SPRITE3 = love.graphics.newImage'assets/enemy3.png'
 
         M._size = Vec(16, 16)
         M.QUADS = quads(2, M._size)
@@ -29,6 +32,8 @@ local function new(_, type, pos)
         health = 1
     elseif type == 2 then
         health = 2
+    elseif type == 3 then
+        health = 1
     else
         error('Invalid type: ' .. type)
     end
@@ -60,6 +65,8 @@ function M:draw(frame)
         else -- health == 1
             sprite = self.SPRITE2X
         end
+    elseif self.type == 3 then
+        sprite = self.SPRITE3
     else
         error('Invalid type: ' .. self.type)
     end
@@ -134,6 +141,19 @@ function M:reachBottomRow()
         return true
     end
     return false
+end
+
+function M:shoot(target)
+    local BULLET_VELOCITY = SETTINGS.BULLET_VELOCITY
+
+    if self.type == 3 then
+        return Bullet(
+            self.pos,
+            BULLET_VELOCITY:norm() * (target - self.pos):versor()
+        )
+    end
+
+    return Bullet(self.pos, -BULLET_VELOCITY)
 end
 
 return M

@@ -47,3 +47,11 @@ function love.update(dt)
     game:keydown()
     game:update(dt)
 end
+
+function love.keypressed(key)
+    if key == 'r' then
+        dbg.print('Restart')
+        game.hud:updateHighscore()
+        game = Game()
+    end
+end

@@ -19,59 +19,19 @@ local M = {
 }
 M.__index = M
 
-local function new(_, opts)
-    local n = opts[1]
-    local m = opts[2]
-    local d = opts[3]
-    local t = opts.timing
-    local level = opts.level
+local function new(_, level, timing)
+    local LEVEL_SWARM_ROWS = SETTINGS.LEVEL_SWARM_ROWS
+    local row = LEVEL_SWARM_ROWS[level]
+
+    local m = SETTINGS.SWARM_SIZE.numColumns
+    local d = SETTINGS.SWARM_SIZE.numMovements
+    local n = #row
 
     local aliens = {}
-    if level < 3 then
-        for i = 1, n do
-            for j = 1, m do
-                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
-                aliens[#aliens + 1] = Alien(1, pos)
-            end
-        end
-    elseif level == 3 then
-        for i = 1, 1 do
-            for j = 1, m do
-                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
-                aliens[#aliens + 1] = Alien(2, pos)
-            end
-        end
-        for i = 2, n do
-            for j = 1, m do
-                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
-                aliens[#aliens + 1] = Alien(1, pos)
-            end
-        end
-    elseif level == 4 then
-        for i = 1, 1 do
-            for j = 1, m do
-                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
-                aliens[#aliens + 1] = Alien(2, pos)
-            end
-        end
-        for i = 2, n - 1 do
-            for j = 1, m do
-                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
-                aliens[#aliens + 1] = Alien(1, pos)
-            end
-        end
-        for i = n, n do
-            for j = 1, m do
-                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
-                aliens[#aliens + 1] = Alien(2, pos)
-            end
-        end
-    elseif level == 5 then
-        for i = 1, n do
-            for j = 1, m do
-                local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
-                aliens[#aliens + 1] = Alien(2, pos)
-            end
+    for i = 1, n do
+        for j = 1, m do
+            local pos = Vec(1.5 * j - 1, 1.5 * i + 1)
+            aliens[#aliens + 1] = Alien(row[i], pos)
         end
     end
 
@@ -89,7 +49,7 @@ local function new(_, opts)
         aliens = aliens,
         movements = movements,
         currentMove = 0,
-        timer = timer.Timer(t),
+        timer = timer.Timer(timing),
         frame = 0,
         frameTimer = timer.Timer(1),
     }
@@ -133,14 +93,12 @@ function M:anyAlive()
     return false
 end
 
-function M:shoot(dt, evilness, bullets)
-    local BULLET_VELOCITY = SETTINGS.BULLET_VELOCITY
-
+function M:shoot(dt, target, evilness, bullets)
     for _, alien in ipairs(self.aliens) do
         if alien:isAlive() then
             local value = love.math.random() -- Who wouldn't love math
             if value < dt * evilness then
-                bullets[#bullets + 1] = Bullet(alien.pos, -BULLET_VELOCITY)
+                bullets[#bullets + 1] = alien:shoot(target)
             end
         end
     end

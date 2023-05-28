@@ -20,8 +20,8 @@ end
 
 function T:clock(f, ...)
     while self.time > self.duration do
-        f(...)
         self.time = self.time - self.duration
+        f(...)
     end
 end
 

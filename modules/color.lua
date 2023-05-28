@@ -21,6 +21,6 @@ M.CYAN = hex(0x00ffff)
 M.MAGENTA = hex(0xff00ff)
 
 M.ORANGE = hex(0xff8800)
-M.OCEAN = hex(0x000022)
+M.OCEAN = hex(0x000011)
 
 return M

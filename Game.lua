@@ -10,6 +10,7 @@ local BonusAlien = require'objects.BonusAlien'
 local Text = require'objects.Text'
 local HUD = require'objects.HUD'
 local Bullet = require'objects.Bullet'
+local Explosion = require'objects.Explosion'
 
 local M = {
     _loaded = false,
@@ -25,6 +26,7 @@ local M = {
         BonusAlien:load()
         HUD:load()
         Bullet:load()
+        Explosion:load()
 
         dbg.log.loaded'Game'
     end,
@@ -57,16 +59,17 @@ local function new(_)
         },
         hud = HUD(),
         spaceship = _centeredSpaceship(),
-        swarm = AlienSwarm{3, 7, 5, timing = SETTINGS.SWARM_TIMING, level = 1} ,
+        swarm = AlienSwarm(1, SETTINGS.SWARM_TIMING),
         bonusAlien = nil,
         timer = {
-            clean = timer.CoolDown(0),
+            clean = timer.CoolDown(5),
             bonus = timer.Timer(SETTINGS.BONUS_TIME()),
         },
         bullets = {
             spaceship = {},
             aliens = {},
         },
+        explosions = {},
     }
 
     setmetatable(self, M)
@@ -78,15 +81,16 @@ function M:nextLevel()
     local difficult = self.difficult
 
     difficult.level = difficult.level + 1
-    difficult.swarmTiming = difficult.timing * 0.6
-    difficult.evilness = difficult.evilness * 1.5
+    if difficult.level > 10 then
+        self.state.gameOver = true
+        return
+    end
+
+    difficult.swarmTiming = difficult.timing * 0.8
+    difficult.evilness = difficult.evilness * 1.10
 
     self.spaceship = _centeredSpaceship()
-    self.swarm = AlienSwarm{
-        3, 7, 5,
-        timing = difficult.swarmTiming,
-        level = difficult.level,
-    }
+    self.swarm = AlienSwarm(difficult.level, difficult.swarmTiming)
     self.bonusAlien = nil
     for _, timer in pairs(self.timer) do
         timer.time = 0
@@ -95,6 +99,7 @@ function M:nextLevel()
         spaceship = {},
         aliens = {},
     }
+    self.explosions = {}
 end
 
 function M:draw()
@@ -127,6 +132,9 @@ function M:drawGame()
     end
     for _, bullet in ipairs(self.bullets.aliens) do
         bullet:draw()
+    end
+    for _, explosion in ipairs(self.explosions) do
+        explosion:draw()
     end
 end
 
@@ -189,19 +197,18 @@ function M:drawPause()
     pos.y = pos.y + 4
     Text:draw(pos + Vec(3, 0), 1, '+>MOVE')
     Text:draw(pos + Vec(2.5, 1), 1, '[]>SHOOT')
+    Text:draw(pos + Vec(3, 3), 1, 'R>RESTART')
     Text:draw(pos + Vec(3, 2), 1, 'F>FULLSCREEN')
     Text:draw(pos + Vec(3, 3), 1, 'L>LEAVE')
 end
 
 function M:drawGameOver()
     love.graphics.setColor(color.ORANGE)
-    inspect{color.ORANGE, 'color'}
-    inspect{{love.graphics.getColor()}, 'Color'}
     local text
-    if self.swarm:reachBottomRow() then
-        text = {'EARTH IS', 'DOOMED'}
-    elseif self.spaceship:isAlive() then
+    if self.difficult.level > 10 then
         text = {'CONGRATS'}
+    elseif self.swarm:reachBottomRow() then
+        text = {'EARTH IS', 'DOOMED'}
     elseif self.swarm:anyAlive() then
         text = {'MISSION', 'FAILED'}
     end
@@ -263,8 +270,8 @@ function M:keydown()
     -- Game movemnets
     local dir = Vec(0, 0)
     Key:shoot(function()
-        self.bullets.spaceship[#self.bullets.spaceship + 1] = Bullet(self
-        .spaceship.pos)
+        self.bullets.spaceship[#self.bullets.spaceship + 1] =
+            Bullet(self.spaceship.pos)
     end)
     Key:right(function()
         dir.x = dir.x + 1
@@ -309,7 +316,7 @@ end
 function M:clean()
     self.timer.clean:clock(function()
         local newBullets = {}
-        for i, bullet in ipairs(self.bullets.spaceship) do
+        for _, bullet in ipairs(self.bullets.spaceship) do
             local onScreen = bullet
                 :collider()
                 :collision(Collider.screenCollider())
@@ -321,7 +328,7 @@ function M:clean()
         self.bullets.spaceship = newBullets
 
         local newBullets = {}
-        for i, bullet in ipairs(self.bullets.aliens) do
+        for _, bullet in ipairs(self.bullets.aliens) do
             local onScreen = bullet
                 :collider()
                 :collision(Collider.screenCollider())
@@ -331,6 +338,14 @@ function M:clean()
             end
         end
         self.bullets.aliens = newBullets
+
+        local newExplosions = {}
+        for _, explosion in ipairs(self.explosions) do
+            if explosion.frame < 2 then
+                newExplosions[#newExplosions + 1] = explosion
+            end
+        end
+        self.explosions = newExplosions
 
         local onScreen = self.bonusAlien and self.bonusAlien
             :collider()
@@ -344,6 +359,7 @@ function M:clean()
         dbg.inspect{#self.bullets.spaceship, '#bullets.spaceship'}
         dbg.inspect{#self.bullets.aliens, '#bullets.aliens'}
         dbg.print('#bonusAlien = ' .. (self.bonusAlien and 1 or 0))
+        dbg.inspect{#self.explosions, '#explosions'}
     end)
 end
 
@@ -377,8 +393,16 @@ function M:update(dt)
     for _, bullet in ipairs(self.bullets.aliens) do
         bullet:update(dt)
     end
+    for _, explosion in ipairs(self.explosions) do
+        explosion:update(dt)
+    end
 
-    self.swarm:shoot(dt, self.difficult.evilness, self.bullets.aliens)
+    self.swarm:shoot(
+        dt,
+        self.spaceship.pos,
+        self.difficult.evilness,
+        self.bullets.aliens
+    )
     self.timer.bonus:clock(function()
         self.timer.bonus.duration = SETTINGS.BONUS_TIME()
 
@@ -440,6 +464,10 @@ function M:update(dt)
             bullet:damage()
             local dscore = self.swarm:damage(j)
             self.hud:addScore(dscore)
+
+            if not alien:isAlive() then
+                self.explosions[#self.explosions + 1] = Explosion(alien.pos)
+            end
         end
     )
 
@@ -480,6 +508,10 @@ function M:update(dt)
             bullet:damage()
             local dscore = bonusAlien:damage()
             self.hud:addScore(dscore)
+
+            if not bonusAlien:isAlive() then
+                self.explosions[#self.explosions + 1] = Explosion(bonusAlien.pos)
+            end
         end
     )
 
