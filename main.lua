@@ -3,6 +3,7 @@ dbg = require'utils.dbg'
 inspect = dbg.inspect
 require'SETTINGS'
 
+local colors = require'modules.color'
 local Game = require'Game'
 local Key = SETTINGS.Key
 
@@ -18,6 +19,7 @@ function love.load()
 
     dbg.log.load'main'
     love.graphics.setDefaultFilter('nearest', 'nearest', 0)
+    love.graphics.setBackgroundColor(colors.OCEAN)
 
     love.window.setTitle'Space Invaders'
     love.window.setMode(
@@ -41,29 +43,7 @@ function love.draw()
 end
 
 function love.update(dt)
-    SETTINGS.Key:update(dt)
+    Key:update(dt)
     game:keydown()
     game:update(dt)
 end
-
-function love.keypressed(key)
-end
-
-function love.resize(w, h)
-    -- SETTINGS.SCALE is now computed
-end
-
---[[
-function love.load() end
-function love.draw() end
-function love.update(dt) end
-
-function love.keyreleased(key) end
-function love.resize(w, h) end
-function love.focus(bool) end
-function love.keypressed(key, unicode) end
-function love.keyreleased(key, unicode) end
-function love.mousepressed(x, y, button) end
-function love.mousereleased(x, y, button) end
-function love.quit() end
---]]

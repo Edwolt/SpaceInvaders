@@ -1,6 +1,7 @@
 local color = require'modules.color'
 local Vec = require'modules.Vec'
 local Collider = require'modules.Collider'
+local quads = require'modules.quads'
 
 local M = {
     _loaded = false,
@@ -13,6 +14,8 @@ local M = {
 
         M.SPRITE = love.graphics.newImage'assets/enemy.png'
 
+        M._size = Vec(16, 16)
+        M.QUADS = quads(2, M._size)
         dbg.log.loaded'Alien'
     end,
 }
@@ -33,7 +36,7 @@ end
 setmetatable(M, {__call = new})
 
 
-function M:draw()
+function M:draw(frame)
     if not self:isAlive() then
         return
     end
@@ -43,7 +46,7 @@ function M:draw()
     local SCALE = SETTINGS.SCALE()
     local screen_pos = self.pos:toscreen()
     love.graphics.draw(
-        self.SPRITE,
+        self.SPRITE, self.QUADS[frame % 2 + 1],
         screen_pos.x, screen_pos.y, 0,
         SCALE.x, SCALE.y
     )
@@ -73,7 +76,7 @@ end
 
 function M:size()
     local BLOCK_SIZE = SETTINGS.BLOCK_SIZE
-    return Vec.imageSize(self.SPRITE) / BLOCK_SIZE
+    return self._size / BLOCK_SIZE
 end
 
 function M:damage()

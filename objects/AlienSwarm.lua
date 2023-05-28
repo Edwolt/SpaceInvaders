@@ -47,6 +47,8 @@ local function new(_, opts)
         movements = movements,
         currentMove = 0,
         timer = timer.Timer(t),
+        frame = 0,
+        frameTimer = timer.Timer(1),
     }
 
     setmetatable(self, M)
@@ -56,11 +58,16 @@ setmetatable(M, {__call = new})
 
 function M:draw()
     for _, alien in ipairs(self.aliens) do
-        alien:draw()
+        alien:draw(self.frame)
     end
 end
 
 function M:update(dt)
+    self.frameTimer:update(dt)
+    self.frameTimer:clock(function()
+        self.frame = self.frame + 1
+    end)
+
     self.timer:update(dt)
     self.timer:clock(function()
         for _, alien in ipairs(self.aliens) do
