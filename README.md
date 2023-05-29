@@ -12,8 +12,8 @@ do FoG (Fellowship of the Game)
 # Metas Obrigatórias
 - [X] É um jogo digital
 - [X] O jogo abre
-- [X] O jogador se pode movimentar a nave horizontalmente
-- [X] O jogador pode atirar um laser em linha reta para cima da tela
+- [X] O jogador pode movimentar a nave horizontalmente
+- [X] O jogador pode atirar um laser para cima em linha reta
 - [X] Os alienígenas devem aparecer da parte superior da tela
     - [X] Os alienígenas se movem horizontalmente,
     - [X] Quando a linha de de alienígenas atingir o limite da tela,
@@ -62,7 +62,8 @@ sendo as teclas e as ações as seguintes:
 | F                  | Fullscreen          |
 | F11                | Fullscreen          |
 
-Tem algumas teclas com funções que ajudaram durante o desenvolvimento do jogo,
+Tem algumas teclas com funções que 
+me ajudaram durante o desenvolvimento do jogo,
 se você tiver curiosidade de testar, elas são as seguintes:
 
 | Tecla | Ação                                                                     |
